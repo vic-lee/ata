@@ -6,21 +6,29 @@
 using namespace std;
 using namespace std::chrono;
 
+enum PrimeTypes {
+    NotPrime,
+    ProbablyPrime,
+    IsPrime,
+};
+
 int main() {
     int N, awesomeCtr = 0;
     cin >> N;
 
     auto start = high_resolution_clock::now();
 
-    vector<bool> primemap(2 * N + 2, true);
+    vector<PrimeTypes> primemap(N + 1, ProbablyPrime);
 
-    primemap[0] = false;
-    primemap[1] = false;
+    primemap[0] = NotPrime;
+    primemap[1] = NotPrime;
 
-    for (int i = 3; i * i <= N * 2; i += 2) {
-        if (primemap[i / 2]) {
-            for (int n = i * i; n <= N; n += i * 2) {
-                primemap[n / 2] = false;
+    for (int i = 3; i * i <= N; i += 2) {
+        if (primemap[i] == ProbablyPrime) {
+            primemap[i] = IsPrime;
+
+            for (int c = i * i; c <= N; c += i * 2) {
+                primemap[c] = NotPrime;
             }
 
             if (i % 10 == 1) {
@@ -33,8 +41,8 @@ int main() {
     while (c % 10 != 1)
         c++;
 
-    for (int i = c; i <= N * 2; i += 10) {
-        if (primemap[i / 2]) {
+    for (int i = c; i <= N; i += 10) {
+        if (primemap[i] == ProbablyPrime) {
             awesomeCtr++;
         }
     }
@@ -42,9 +50,7 @@ int main() {
     printf("%d\n", awesomeCtr);
 
     auto stop = high_resolution_clock::now();
-
     auto duration = duration_cast<microseconds>(stop - start);
-
     cout << "Time taken by function: " << duration.count() << " microseconds"
          << endl;
 }
