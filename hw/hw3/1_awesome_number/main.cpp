@@ -30,19 +30,23 @@ int count_awesome(int max_prime) {
         if (bs.test(k)) {
             for (int c = k * k; c <= max_prime; c += 2 * k)
                 set_0(bs, c);
-            if (k % 10 == 1)
+            if (k % 10 == 1) {
+                // cout << k << endl;
                 awesome_ctr++;
+            }
         }
     }
 
-    int it = (int)sqrt(max_prime);
+    int it = ceil(sqrt(max_prime));
     while (it % 10 != 1)
         ++it;
     // iterate sqrt(n) ... n
     for (; it <= max_prime; it += 10) {
         // printf("Testing %d: %d\n", it, bs.test(it));
-        if (bs.test(it))
+        if (bs.test(it)) {
+            // cout << it << endl;
             awesome_ctr++;
+        }
     }
 
     return awesome_ctr;
@@ -52,12 +56,12 @@ int main() {
     int in;
     cin >> in;
 
-    auto start = high_resolution_clock::now();
+    // auto start = high_resolution_clock::now();
 
     cout << count_awesome(in) << endl;
 
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    cout << "Time taken by function: " << duration.count() << " microseconds"
-         << endl;
+    // auto stop = high_resolution_clock::now();
+    // auto duration = duration_cast<microseconds>(stop - start);
+    // cout << "Time taken by function: " << duration.count() << " microseconds"
+    //      << endl;
 }
