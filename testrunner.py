@@ -1,5 +1,6 @@
 import os
 import re
+import subprocess
 import sys
 from collections import namedtuple
 from pprint import pprint
@@ -36,5 +37,37 @@ def get_test_cases(target_path) -> List[TestCase]:
     return test_cases
 
 
+def run_tests(target_abs_path, test_cases):
+    print(target_abs_path)
+    cpp_cmp_args = ['g++', '-std=c++11', 'main.cpp']
+    comp_res = subprocess.run(cpp_cmp_args,
+                              cwd=target_abs_path, capture_output=True)
+    comp_errs = comp_res.stderr.decode().splitlines()
+    if len(comp_errs) > 0:
+        pprint(comp_errs)
+        return
+
+    for test in test_cases:
+        assert os.path.isfile(test.input)
+        assert os.path.isfile(test.output)
+
+        with open(test.input, 'r') as f_in:
+            test_res = subprocess.run('./a.out',
+                                      cwd=target_abs_path,
+                                      stdin=f_in,
+                                      capture_output=True)
+            test_errs = test_res.stderr.decode().splitlines()
+            test_output = test_res.stdout.decode().splitlines()
+            if len(test_errs) > 0:
+                print(test_errs)
+
+        with open(test.output, 'r') as f_out:
+            expected_output = [l.strip() for l in f_out.readlines()]
+
+        assert test_output == expected_output
+
+
 if __name__ == '__main__':
-    get_test_cases()
+    target_path = read_args()
+    test_cases = get_test_cases(target_path)
+    run_tests(target_path, test_cases)
