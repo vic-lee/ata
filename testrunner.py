@@ -64,7 +64,7 @@ def run_tests(target_abs_path, test_cases):
         with open(test.output, 'r') as f_out:
             expected_output = [l.strip() for l in f_out.readlines()]
 
-        assert test_output == expected_output
+        assert test_output == expected_output, f'Error in {test.output}'
 
 
 if __name__ == '__main__':
