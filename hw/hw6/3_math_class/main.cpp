@@ -21,28 +21,8 @@ vector<string> read_in() {
 
 auto rank_num = [](string s1, string s2) {
     if (s1 == s2)
-        return true;  // s1 s2's order doesn't matter if they're equal.
-    // else they must differ at some digit
-    for (size_t i = 0; i < min(s1.size(), s2.size()); i++) {
-        if (s1[i] > s2[i]) {
-            return false;  // encounter greater digit in s1, s1 ranks higher.
-        } else if (s1[i] < s2[i]) {
-            return true;  // encounter greater digit in s2, s2 ranks higher.
-        }
-    }
-    // else one number must be exactly matching the other's first len(s)
-    size_t shift = min(s1.size(), s2.size());
-    string long_num = s1.size() > s2.size() ? s1 : s2;
-
-    for (size_t i = 0; (i + shift) < long_num.size(); i++) {
-        if (long_num[i + shift] > long_num[i]) {
-            return s1.size() < s2.size();  // whoever longer ranks first
-        } else if (long_num[i + shift] < long_num[i]) {
-            return s1.size() > s2.size();  // whoever shorter ranks first
-        }
-    }
-
-    return false;
+        return true;
+    return (s2 + s1) > (s1 + s2);
 };
 
 ostringstream sort_nums(vector<string>& raw_nums) {
