@@ -1,4 +1,4 @@
-*.out
+a.out
 .vscode
 .DS_Store
 *.class
