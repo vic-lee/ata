@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <queue>
 #include <sstream>
@@ -39,7 +40,7 @@ ULL calc_prizes(Receipts& receipts) {
         unsigned int max_rct = maxheap.top();
         minheap.pop();
         maxheap.pop();
-        total += max_rct - min_rct;
+        total += min(max_rct - min_rct, (unsigned int)1000000);
     }
 
     return total;
