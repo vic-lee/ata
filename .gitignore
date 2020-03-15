@@ -4,3 +4,5 @@ t.out
 .DS_Store
 *.class
 tmp
+main
+*.dSYM
