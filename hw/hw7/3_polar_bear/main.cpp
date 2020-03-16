@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iterator>
 #include <map>
+#include <numeric>
 #include <sstream>
 #include <vector>
 
@@ -13,7 +14,7 @@ using Elevation = vector<vector<UIN>>;
 
 class DisjointSet {
     /* map object ID to set ID */
-    map<unsigned int, int> roots_;
+    vector<int> roots_;
     vector<unsigned int> ranks_;
     unsigned int set_cnt_ = 0;
 
@@ -26,9 +27,8 @@ class DisjointSet {
     DisjointSet(unsigned int sz) {
         set_cnt_ = sz;
         ranks_ = vector<unsigned int>(sz, 1);
-        for (unsigned int i = 0; i < sz; i++) {
-            roots_[i] = i;
-        }
+        roots_ = vector<int>(sz);
+        iota(begin(roots_), end(roots_), 0);
     }
 
     /** Find the Set ID of an element, given its ID. */
