@@ -199,7 +199,7 @@ int main() {
 
     ostringstream oss;
     oss << res[0];
-    for (size_t i = 0; i < res.size(); i++)
+    for (size_t i = 1; i < res.size(); i++)
         oss << ' ' << res[i];
 
     cout << oss.str() << endl;
