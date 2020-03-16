@@ -196,10 +196,11 @@ vector<UIN> count_islands(Elevation& elevation, vector<UIN> levels) {
 int main() {
     auto [elevation, levels] = read_in();
     auto res = count_islands(elevation, levels);
-    for (size_t i = 0; i < res.size(); i++) {
-        if (i != 0)
-            cout << ' ';
-        cout << res[i];
-    }
-    cout << '\n';
+
+    ostringstream oss;
+    oss << res[0];
+    for (size_t i = 0; i < res.size(); i++)
+        oss << ' ' << res[i];
+
+    cout << oss.str() << endl;
 }
