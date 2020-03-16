@@ -194,6 +194,9 @@ vector<UIN> count_islands(Elevation& elevation, vector<UIN> levels) {
 }
 
 int main() {
+    std::ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
     auto [elevation, levels] = read_in();
     auto res = count_islands(elevation, levels);
 
