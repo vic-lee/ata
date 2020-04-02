@@ -51,6 +51,7 @@ void find_root(const int A, const int B, const int C, const int D, const int E,
     mid_res = calc(mid);
 
     do {
+        // either left or right cursor will get adjusted
         right = signbit(left_res) != signbit(mid_res) ? mid : right;
         left = signbit(right_res) != signbit(mid_res) ? mid : left;
         mid = (left + right) / 2;
