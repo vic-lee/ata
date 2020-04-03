@@ -22,6 +22,7 @@ class DisjointSet {
     /* map object ID to set ID */
     map<unsigned int, unsigned int> parent_;
     vector<unsigned int> size_;
+    vector<int> balance_;
     unsigned int set_cnt_ = 0;
 
    public:
@@ -30,10 +31,14 @@ class DisjointSet {
      * @param sz: the total number of elements to be considered. Elements' IDs
      *  are initialized to be [0 ... sz-1].
      */
-    DisjointSet(unsigned int sz) {
+    DisjointSet(unsigned int sz, const vector<int> balance) {
         set_cnt_ = sz;
         size_ = vector<unsigned int>(sz, 1);
-        for (unsigned int i = 0; i < sz; i++) parent_[i] = i;
+        balance_ = vector<int>(sz, 0);
+        for (unsigned int i = 0; i < sz; i++) {
+            parent_[i] = i;
+            balance_[i] = balance[i];
+        }
     }
 
     /** Find the Set ID of an element, given its ID. */
@@ -55,8 +60,12 @@ class DisjointSet {
         if (size_[a] < size_[b]) swap(a, b);
         parent_[b] = a;
         size_[a] += size_[b];
+        balance_[a] += balance_[b];
+        balance_[b] = 0;
         set_cnt_--;
     }
+
+    vector<int> balance() const { return balance_; }
 
     /** The number of sets in this Disjoint Set. */
     unsigned int set_count() const { return set_cnt_; }
@@ -104,32 +113,15 @@ Input read_in() {
 }
 
 bool can_pay_fees(vector<int>& balance, vector<tuple<UIN, UIN>>& friendships) {
-    auto ds = DisjointSet(balance.size());
-    bool res = true;
+    auto ds = DisjointSet(balance.size(), balance);
 
-    // define friendship groups
     for (auto const& friendship : friendships)
         ds.union_sets(get<0>(friendship), get<1>(friendship));
 
-    auto set_snapshot = ds.set_snapshot();
-    for (auto& subset : set_snapshot) {
-        auto subset_members = subset.second;
+    auto group_balances = ds.balance();
 
-        auto id_to_balance = [balance](int id) -> int { return balance[id]; };
-
-        // map everyone's ID to their balance
-        transform(subset_members.begin(), subset_members.end(),
-                  subset_members.begin(), id_to_balance);
-
-        // calculate sums
-        int sum = accumulate(subset_members.begin(), subset_members.end(), 0);
-        cout << sum << " ";
-        if (sum != 0) {
-            res = false;
-        }
-    }
-
-    return res;
+    return find_if(group_balances.begin(), group_balances.end(),
+                   [](int& bs) { return bs != 0; }) == group_balances.end();
 }
 
 int main() {
