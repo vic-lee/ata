@@ -16,7 +16,7 @@ void print_iterable(T items) {
 
 void read_in() {}
 
-void calc() {}
+void match_archers() {}
 
 void fmtout() {}
 
