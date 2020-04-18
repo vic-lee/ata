@@ -88,11 +88,8 @@ void fmtout(const Entry& res) {
     if (res.max <= 0) {
         cout << "Yet another overrated tourist destination" << endl;
     } else {
-        printf("The nicest part of Y1 is between stop %zu and %zu\n",
+        printf("The nicest part of Y1 is between stops %zu and %zu\n",
                res.beg + 1, res.end + 2);
-        // printf(
-        //     "The nicest part of Y1 is between stop %zu and %zu with sum
-        //     %lld\n", res.beg + 1, res.end + 2, res.max);
     }
 }
 
