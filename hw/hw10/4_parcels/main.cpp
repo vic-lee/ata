@@ -38,112 +38,98 @@ auto DEBUG = [](auto db_func) {
 };
 
 vector<int> read_in() {
-    vector<int> box_specs = vector<int>(6, 0);
-    for (size_t i = 0; i < 6; i++) cin >> box_specs[i];
+    vector<int> box_specs = vector<int>(7, 0);
+    for (size_t i = 1; i < 7; i++) cin >> box_specs[i];
     return box_specs;
 }
 
 constexpr UIN vol(UIN side_len) { return side_len * side_len * side_len; }
 
-constexpr UIN idx(int side_len) { return side_len - 1; }
-
 UIN process(vector<int> box_specs) {
-    int pkg_remaining_vol    = vol(PKG_SIDELEN);
-    int used_pkg_count       = 0;
-    int max_sidelen_to_use   = 6;
-    int usable_sidelen_limit = 6;
-    int box_count = accumulate(box_specs.begin(), box_specs.end(), 0);
+    UIN pkg_count = 0;
 
-    auto find_next_max_sidelen = [&usable_sidelen_limit, &box_specs]() -> int {
-        int cur = usable_sidelen_limit - 1;
-        while (cur >= 0 && box_specs[cur] == 0) cur--;
-        return cur + 1;
-    };
+    // 6x6 boxes occupy the entire package
+    pkg_count += box_specs[6];
+    box_specs[6] = 0;
 
-    auto has_box = [&box_specs](UIN next_sidelen) -> bool {
-        return box_specs[idx(next_sidelen)] > 0;
-    };
+    pkg_count += box_specs[5];
+    // each pkg with a 5x5 box can hold a maximum of 11 more 1x1 boxes.
+    box_specs[1] -= min(box_specs[1], box_specs[5] * 11);
 
-    auto pkg_has_space = [&pkg_remaining_vol](UIN next_sidelen) -> bool {
-        return pkg_remaining_vol >= vol(next_sidelen);
-    };
-
-    auto sidelen_fits_in_pkg =
-        [&usable_sidelen_limit](UIN next_sidelen) -> bool {
-        return next_sidelen <= usable_sidelen_limit;
-    };
-
-    auto can_use_box = [has_box, sidelen_fits_in_pkg, &usable_sidelen_limit,
-                        pkg_has_space](UIN next_sidelen) -> bool {
-        DEBUG([=]() {
-            if (!has_box(next_sidelen)) {
-                cout << "rejecting use box call; no box of " << next_sidelen
-                     << " remains." << endl;
-            }
-            if (!sidelen_fits_in_pkg(next_sidelen)) {
-                cout << "rejecting use box call: requested len " << next_sidelen
-                     << " exceeds max usable len " << usable_sidelen_limit
-                     << endl;
-            }
-            if (!pkg_has_space(next_sidelen)) {
-                cout << "rejecting use box call: pkg has no space." << endl;
-            }
-        });
-        return has_box(next_sidelen) && sidelen_fits_in_pkg(next_sidelen) &&
-               pkg_has_space(next_sidelen);
-    };
-
-    auto eager_use_box = [&pkg_remaining_vol, &usable_sidelen_limit, &box_count,
-                          &box_specs](UIN sidelen_to_use) {
-        int num_boxes_to_use =
-            min(box_specs[idx(sidelen_to_use)],
-                (int)(pkg_remaining_vol / vol(sidelen_to_use)));
-
-        pkg_remaining_vol -= vol(sidelen_to_use) * num_boxes_to_use;
-        box_specs[idx(sidelen_to_use)] -= num_boxes_to_use;
-        box_count -= num_boxes_to_use;
-        usable_sidelen_limit =
-            min(PKG_SIDELEN - sidelen_to_use, sidelen_to_use);
-        DEBUG([=]() {
-            cout << "using box of len: " << sidelen_to_use
-                 << "; remaining: " << box_specs[idx(sidelen_to_use)]
-                 << "; usable sidelen lim: " << usable_sidelen_limit
-                 << "; current pkg still has: " << pkg_remaining_vol << endl;
-        });
-    };
-
-    auto should_make_new_pkg = [&max_sidelen_to_use,
-                                &pkg_remaining_vol]() -> bool {
-        return max_sidelen_to_use == 0 || pkg_remaining_vol == 0;
-    };
-
-    auto make_new_pkg = [&pkg_remaining_vol, &used_pkg_count,
-                         &usable_sidelen_limit]() {
-        used_pkg_count++;
-        pkg_remaining_vol    = vol(PKG_SIDELEN);
-        usable_sidelen_limit = PKG_SIDELEN;
-        DEBUG([=]() {
-            cout << "making new pkg; full pkg count: " << used_pkg_count
-                 << endl;
-        });
-    };
-
-    while (box_count > 0) {
-        if (should_make_new_pkg()) {
-            make_new_pkg();
-            max_sidelen_to_use = find_next_max_sidelen();
-        }
-
-        if (can_use_box(max_sidelen_to_use)) eager_use_box(max_sidelen_to_use);
-
-        max_sidelen_to_use = find_next_max_sidelen();
-        DEBUG([=]() {
-            cout << "getting next usable sidelen " << max_sidelen_to_use
-                 << endl;
-        });
+    pkg_count += box_specs[4];
+    // each pkg with a 4x4 box can hold a maximum of 5 more 2x2 boxes.
+    UIN box_2_capacity = 5 * box_specs[4];
+    if (box_2_capacity <= box_specs[2]) {
+        box_specs[2] -= box_2_capacity;
+    } else {
+        // if there aren't enough 2x2 boxes to fill up the capacity,
+        // use as many 1x1 boxes as possible to fill in.
+        int remain_box_1_capacity = box_2_capacity - box_specs[2];
+        box_specs[2]              = 0;
+        box_specs[1] -= min(box_specs[1], remain_box_1_capacity);
     }
 
-    return used_pkg_count + 1;
+    // each pkg can fit up to 4 3x3 boxes.
+    pkg_count += box_specs[3] / 4;
+    int rem_3 = box_specs[3] % 4;
+    if (rem_3) {
+        // use 1 extra pkg to pack the remaining 3x3 boxes (1 <= rem <= 3)
+        pkg_count += 1;
+        switch (rem_3) {
+            case 3:
+                // can fit at most 1 2x2 box
+                if (box_specs[2] >= 1) {
+                    box_specs[2]--;
+                    // still has space for at most 5 1x1 boxes
+                    box_specs[1] -= min(box_specs[1], 5);
+                } else {
+                    // if there're no 2x2 boxes remaining,
+                    // can pack at most 9 1x1 boxes.
+                    box_specs[1] -= min(box_specs[1], 9);
+                }
+                break;
+            case 2:
+                // can fit at most 2 2x2 boxes; try to fit remaining space
+                // with as many 1x1 boxes as possible.
+                if (box_specs[2] >= 2) {
+                    box_specs[2] -= 2;
+                    box_specs[1] -= min(box_specs[1], 10);
+                } else if (box_specs[2] == 1) {
+                    box_specs[2]--;
+                    box_specs[1] -= min(box_specs[1], 14);
+                } else {
+                    box_specs[1] -= min(box_specs[1], 18);
+                }
+                break;
+            case 1: {
+                int box2_use_count = min(box_specs[2], 5);
+                box_specs[2] -= box2_use_count;
+                int box1_limit = 6 * 6 - 3 * 3 - box2_use_count * 2 * 2;
+                box_specs[1] -= min(box_specs[1], box1_limit);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    // check if there are remaining 2x2s and 1x1s.
+    pkg_count += box_specs[2] / 9;
+    int rem_2 = box_specs[2] % 9;
+    if (rem_2) {  // 1 <= rem < 9
+        pkg_count++;
+        box_specs[2] -= rem_2;
+        box_specs[1] -= min(box_specs[1], 6 * 6 - rem_2 * 2 * 2);
+    }
+
+    pkg_count += box_specs[1] / 36;
+    int rem_1 = box_specs[1] % 36;
+    if (rem_1) {
+        pkg_count++;
+        box_specs[1] -= rem_1;
+    }
+
+    return pkg_count;
 }
 
 int main() {
