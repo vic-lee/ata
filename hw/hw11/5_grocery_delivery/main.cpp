@@ -48,72 +48,41 @@ Input read_in() {
     return in;
 }
 
-void process(Input& in) {
-    auto                                 volume_it = in.volumes.begin() + 1;
-    unordered_map<string, BoxCapacities> prev, curr;
-    if (in.volumes[0] > in.box_capacity) {
-        cout << 0 << endl;
-        return;
+struct Output {
+    string arrangements;
+    size_t num_items;
+
+    bool operator<(const Output& other) const {
+        return num_items < other.num_items;
+    }
+};
+
+Output arrange_boxes(ULL box1_cap, ULL box2_cap, size_t curr, string solution,
+                     const vector<UIN>& volumes) {
+    if (curr >= volumes.size()) return {solution, curr};
+    auto curr_item_vol = volumes[curr];
+
+    if (curr_item_vol <= box1_cap && curr_item_vol <= box2_cap) {
+        return max(arrange_boxes(box1_cap - curr_item_vol, box2_cap, curr + 1,
+                                 solution + "1st\n", volumes),
+                   arrange_boxes(box1_cap, box2_cap - curr_item_vol, curr + 1,
+                                 solution + "2nd\n", volumes));
+    } else if (curr_item_vol <= box1_cap) {
+        return arrange_boxes(box1_cap - curr_item_vol, box2_cap, curr + 1,
+                             solution + "1st\n", volumes);
+    } else if (curr_item_vol <= box2_cap) {
+        return arrange_boxes(box1_cap, box2_cap - curr_item_vol, curr + 1,
+                             solution + "2nd\n", volumes);
     }
 
-    // store the 1st elem in the 1st box, by default
-    curr["1st\n"] = {in.box_capacity - in.volumes[0], in.box_capacity};
+    return {solution, curr};
+}
 
-    do {
-        prev = curr;
-        curr.clear();
-        auto curr_item_vol = *volume_it;
+void deliver_groceries(Input& in) {
+    auto res =
+        arrange_boxes(in.box_capacity, in.box_capacity, 0, "", in.volumes);
 
-        for (auto prevmap_it = prev.begin(); prevmap_it != prev.end();
-             prevmap_it++) {
-            auto remaining_capacities = prevmap_it->second;
-            auto res_str              = prevmap_it->first;
-
-            // cout << remaining_capacities.box1 << " "
-            //      << remaining_capacities.box2 << " " << curr_item_vol << " "
-            //      << res_str;
-
-            // ignore this entry if no box can fit the current item
-            if (curr_item_vol > remaining_capacities.box1 &&
-                curr_item_vol > remaining_capacities.box2) {
-                // cout << "ignoring " << res_str;
-                continue;
-            }
-
-            if (curr_item_vol <= remaining_capacities.box1) {
-                auto next_res_str = res_str + "1st\n";
-                if (prev.find(next_res_str) == prev.end()) {
-                    curr[next_res_str] = {
-                        remaining_capacities.box1 - curr_item_vol,
-                        remaining_capacities.box2};
-                    // cout << "created entry:\n" << next_res_str;
-                } else {
-                    curr[next_res_str] = prev[next_res_str];
-                }
-            }
-
-            if (curr_item_vol <= remaining_capacities.box2) {
-                auto next_res_str = res_str + "2nd\n";
-                if (prev.find(next_res_str) == prev.end()) {
-                    curr[next_res_str] = {
-                        remaining_capacities.box1,
-                        remaining_capacities.box2 - curr_item_vol};
-                    // cout << "created entry:\n" << next_res_str;
-                } else {
-                    curr[next_res_str] = prev[next_res_str];
-                }
-            }
-        }
-
-        volume_it++;
-    } while (!curr.empty() && volume_it != in.volumes.end());
-
-    auto box_arrangements =
-        curr.empty() ? prev.begin()->first : curr.begin()->first;
-    auto box_caps  = curr.empty() ? prev.begin()->second : curr.begin()->second;
-    auto num_boxes = distance(in.volumes.begin(), volume_it) - 1;
-
-    cout << num_boxes << endl << box_arrangements;
+    cout << res.num_items << endl << res.arrangements;
 }
 
 int main() {
@@ -121,5 +90,5 @@ int main() {
     cin.tie(NULL);
 
     auto in = read_in();
-    process(in);
+    deliver_groceries(in);
 }
