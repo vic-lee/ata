@@ -58,16 +58,28 @@ class DisjointSet {
 
     /** Given 2 elements, union the sets that they belong to. */
     void union_sets(unsigned int x, unsigned int y) {
-        unsigned int a = find_set(x);
-        unsigned int b = find_set(y);
+        unsigned int x_root = find_set(x);
+        unsigned int y_root = find_set(y);
 
-        if (a == b) return;
+        if (x_root == y_root) return;
 
         /* merge the smaller set into the larger set. */
-        if (size_[a] < size_[b]) swap(a, b);
-        parent_[b] = a;
-        size_[a] += size_[b];
-        sums_[a] += sums_[b];
+        if (size_[x_root] < size_[y_root]) swap(x_root, y_root);
+        parent_[y_root] = x_root;
+        size_[x_root] += size_[y_root];
+        sums_[x_root] += sums_[y_root];
+
+        // perform flattening during union
+        // if y is a root element, then it's possible other elements point
+        // to y rather than the new root. We perform the flattening now.
+        if (y_root == y) {
+            for (size_t i = 0; i < parent_.size(); i++) {
+                if (parent_[i] == y_root) {
+                    parent_[i] = x_root;
+                }
+            }
+        }
+
         set_cnt_--;
     }
 
@@ -87,30 +99,33 @@ class DisjointSet {
         parent_[from] = to_rt;
 
         size_[to_rt]++;
-        size_[from_rt]--;
         sums_[to_rt] += from;
-        sums_[from_rt] -= from;
 
-        if (from == from_rt && size_[from_rt] >= 1) {
+        if (from == from_rt && size_[from_rt] >= 2) {
             UIN new_parent = parent_.size() + 1;
 
             // delete all references to `from`, if exists
             for (size_t i = 0; i < parent_.size(); i++) {
-                if (parent_[i] == from) {
+                if (parent_[i] == from_rt) {
                     // set the first elem that uses `from` as parent as
                     // the new parent
                     if (new_parent > parent_.size()) {
                         new_parent = i;
                     }
+                    // cout << "setting " << i << "'s parent from " <<
+                    // parent_[i]
+                    //  << " to " << new_parent << endl;
                     parent_[i] = new_parent;
                 }
             }
 
-            // if a new parent is set, transfer size_ and sums_ values
             if (new_parent <= parent_.size()) {
-                size_[new_parent] = size_[from_rt];
-                sums_[new_parent] = sums_[from_rt];
+                size_[new_parent] = size_[from_rt] - 1;
+                sums_[new_parent] = sums_[from_rt] - from;
             }
+        } else {
+            size_[from_rt]--;
+            sums_[from_rt] -= from;
         }
 
         // cout << "parent of " << from << " becomes " << find_set(from) <<
