@@ -29,7 +29,7 @@ class DisjointSet {
     /* map object ID to set ID */
     unordered_map<unsigned int, unsigned int> parent_;
     vector<unsigned int>                      size_;
-    vector<unsigned int>                      sums_;
+    vector<ULL>                               sums_;
     unsigned int                              set_cnt_ = 0;
 
    public:
@@ -41,7 +41,7 @@ class DisjointSet {
     DisjointSet(unsigned int sz) {
         set_cnt_ = sz;
         size_    = vector<unsigned int>(sz + 1, 1);
-        sums_    = vector<unsigned int>(sz + 1, 0);
+        sums_    = vector<ULL>(sz + 1, 0);
         for (unsigned int i = 0; i < sz + 1; i++) {
             parent_[i] = i;
             sums_[i]   = i;
@@ -72,7 +72,7 @@ class DisjointSet {
         // perform flattening during union
         // if y is a root element, then it's possible other elements point
         // to y rather than the new root. We perform the flattening now.
-        if (y_root == y) {
+        if (y_root == y && size_[y_root] > 1) {
             for (size_t i = 0; i < parent_.size(); i++) {
                 if (parent_[i] == y_root) {
                     parent_[i] = x_root;
@@ -140,7 +140,7 @@ class DisjointSet {
         return size_[set_id];
     }
 
-    unsigned int set_sum(unsigned int elem) {
+    ULL set_sum(unsigned int elem) {
         auto set_id = find_set(elem);
         return sums_[set_id];
     }
