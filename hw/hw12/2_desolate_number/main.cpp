@@ -25,9 +25,10 @@ bitset<MAX_BITCOUNT> min_desolate_num(UIN num_ones, UIN num_zeroes) {
 
     // maximum number of `101`s that can be used in the bitset
     int max_template_count = min(num_zeroes, num_ones / 2);
+    int remaining_ones     = num_ones - max_template_count * 2;
+    int remaining_zeroes   = num_zeroes - max_template_count;
     // number of 1s to set before prepending `101`s
-    int remaining_ones   = num_ones - max_template_count * 2;
-    int remaining_zeroes = num_zeroes - max_template_count;
+    int right_padded_ones = remaining_ones;
 
     // if there are remaining zeroes, to maximize the number of ones next
     // to zeroes, place a `1` at the front of the binary.
@@ -35,14 +36,14 @@ bitset<MAX_BITCOUNT> min_desolate_num(UIN num_ones, UIN num_zeroes) {
     // either `remaining_ones` or `remaining_zeroes` will be 0 | 1
     // (otherwise we would've added another `101`).
     if (remaining_ones && remaining_zeroes) {
-        remaining_ones--;
+        right_padded_ones--;
     }
 
     size_t cur = 0;
 
-    while (remaining_ones > 0) {
+    while (right_padded_ones > 0) {
         bs.set(cur++);
-        remaining_ones--;
+        right_padded_ones--;
         num_ones--;
     }
 
