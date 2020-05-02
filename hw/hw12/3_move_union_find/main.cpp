@@ -73,9 +73,8 @@ class DisjointSet {
         sums_[x_root] += sums_[y_root];
 
         // perform flattening during union
-        // if y is a root element, then it's possible other elements point
-        // to y rather than the new root. We perform the flattening now.
-        if (y_root == y && size_[y_root] > 1) {
+        // the `move` method assumes flat trees (trees w/ only 2 levels)
+        if (size_[y_root] > 1) {
             for (size_t i = 0; i < parent_.size(); i++) {
                 if (parent_[i] == y_root) {
                     parent_[i] = x_root;
