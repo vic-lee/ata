@@ -91,13 +91,7 @@ class DisjointSet {
         unsigned int from_rt = find_set(from);
         unsigned int to_rt   = find_set(to);
 
-        // cout << "parent of " << from << " is " << from_rt << "; parent of "
-        //  << to << " is " << to_rt << endl;
-
         if (from_rt == to_rt) return;
-
-        // cout << "moving " << from << " (root: " << from_rt << ") to " << to
-        //  << " (root: " << to_rt << ")" << endl;
 
         parent_[from] = to_rt;
 
@@ -115,9 +109,6 @@ class DisjointSet {
                     if (new_parent > parent_.size()) {
                         new_parent = i;
                     }
-                    // cout << "setting " << i << "'s parent from " <<
-                    // parent_[i]
-                    //  << " to " << new_parent << endl;
                     parent_[i] = new_parent;
                 }
             }
@@ -130,9 +121,6 @@ class DisjointSet {
             size_[from_rt]--;
             sums_[from_rt] -= from;
         }
-
-        // cout << "parent of " << from << " becomes " << find_set(from) <<
-        // endl; cout << "sum becomes " << sums_[to_rt] << endl;
     }
 
     /** The number of sets in this Disjoint Set. */
@@ -180,7 +168,6 @@ Input read_in() {
 void process(Input& in) {
     auto ds = DisjointSet(in.num_elems);
     for (auto const& command : in.commands) {
-        // cout << command.cmd << " " << command.a << " " << command.b << endl;
         switch (command.cmd) {
             case 1:  // union sets
                 ds.union_sets(command.a, command.b);
