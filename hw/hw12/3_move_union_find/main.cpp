@@ -28,9 +28,12 @@ UnaryFunction for_each_if(InIt first, InIt last, UnaryFunction fn,
 class DisjointSet {
     /* map object ID to set ID */
     unordered_map<unsigned int, unsigned int> parent_;
-    vector<unsigned int>                      size_;
-    vector<ULL>                               sums_;
-    unsigned int                              set_cnt_ = 0;
+    /* number of elements in each set */
+    vector<unsigned int> size_;
+    /* sum of all the elements' values in each set */
+    vector<ULL> sums_;
+    /* number of sets in this disjoint set */
+    unsigned int set_cnt_ = 0;
 
    public:
     /**
