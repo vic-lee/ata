@@ -98,6 +98,8 @@ class DisjointSet {
         size_[to_rt]++;
         sums_[to_rt] += from;
 
+        // if we're moving a root node and there are other elements
+        // pointing to this node
         if (from == from_rt && size_[from_rt] >= 2) {
             UIN new_parent = parent_.size() + 1;
 
