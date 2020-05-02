@@ -50,63 +50,44 @@ Grid read_in() {
     return grid;
 }
 
-int play_board_game(Grid& grid, UIN num_moves, int prev_row, int prev_col,
-                    bool is_eto) {
-    if (num_moves >= (grid.cells.size() - 1) * 2) {
-        // there is only 1 remaining unvisited cell; return that cell's value
-        // as the amount luna has to pay (she's always the last player)
-        for (size_t row = 0; row < grid.row_visited.size(); row++) {
-            if (!grid.row_visited[row]) {
-                for (size_t col = 0; col < grid.col_visited.size(); col++) {
-                    if (!grid.col_visited[col]) {
-                        return grid.cells[row][col];
-                    }
-                }
-            }
-        }
+/**
+ * Returns the optimal (lowest) amount Luna has to pay.
+ *
+ * After carefully analyzing the prompt, one should realize that the output
+ * pathway does not depend on the Eto's choices. A previously mutual-recursive
+ * solution, where we optimize (maximize) Eto's score at every his turn, is
+ * abandonded.
+ *
+ * Further, one should note that the _order_ of picking columns does not matter.
+ * This is because the final score is the summation of all the cells picked,
+ * and summation is commutative. This can reduce the program's recursive
+ * for loop from a 2-D one to onr that's 1-D.
+ *
+ * Previous implementation takes ~ 7 secs on N = 7. This takes 0 secs.
+ */
+int play_board_game(Grid& grid, UIN luna_col) {
+    if (luna_col >= grid.cells[0].size()) {
         return 0;
     }
 
-    if (is_eto) {
-        // the balance eto will receive from luna; higher is better
-        int luna_optimal_score = INT_MIN;
+    // the balance luna has to pay out; lower is better for luna
+    int luna_optimal_score = INT_MAX;
 
-        for (size_t row = 0; row < grid.cells.size(); row++) {
-            if (!grid.row_visited[row]) {
-                grid.row_visited[row] = true;
+    for (size_t row = 0; row < grid.cells.size(); row++) {
+        if (!grid.row_visited[row] && !grid.col_visited[luna_col]) {
+            grid.row_visited[row]      = true;
+            grid.col_visited[luna_col] = true;
 
-                int luna_score =
-                    play_board_game(grid, num_moves + 1, row, prev_col, false);
+            int luna_score =
+                play_board_game(grid, luna_col + 1) + grid.cells[row][luna_col];
+            luna_optimal_score = min(luna_score, luna_optimal_score);
 
-                luna_optimal_score = max(luna_score, luna_optimal_score);
-
-                grid.row_visited[row] = false;
-            }
+            grid.row_visited[row]      = false;
+            grid.col_visited[luna_col] = false;
         }
-
-        return luna_optimal_score;
-    } else {
-        // the balance luna has to pay out; lower is better for luna
-        int luna_optimal_score = INT_MAX;
-
-        for (size_t col = 0; col < grid.cells[0].size(); col++) {
-            if (!grid.col_visited[col]) {
-                grid.col_visited[col] = true;
-
-                int luna_score =
-                    play_board_game(grid, num_moves + 1, prev_row, col, true) +
-                    grid.cells[prev_row][col];
-
-                luna_optimal_score = min(luna_score, luna_optimal_score);
-
-                grid.col_visited[col] = false;
-            }
-        }
-
-        return luna_optimal_score;
     }
 
-    return 0;
+    return luna_optimal_score;
 }
 
 int main() {
@@ -114,6 +95,6 @@ int main() {
     cin.tie(NULL);
 
     auto grid = read_in();
-    auto out  = play_board_game(grid, 0, -1, -1, true);
+    auto out  = play_board_game(grid, 0);
     cout << out << endl;
 }
