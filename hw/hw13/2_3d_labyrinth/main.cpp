@@ -2,11 +2,14 @@
 #include <climits>
 #include <cmath>
 #include <iostream>
+#include <queue>
 #include <sstream>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
 using UIN = unsigned int;
+using LL  = long long;
 using ULL = unsigned long long;
 
 const int NO_PATH = 270100;
@@ -15,10 +18,96 @@ template <typename T>
 void print_iterable(const T& items) {
     ostringstream oss;
     for (auto const& item : items) {
-        oss << item << '\n';
+        oss << item << ' ';
     }
-    cout << oss.str();
+    cout << oss.str() << endl;
 }
+
+class Graph {
+    struct Edge {
+        UIN u;
+        UIN v;
+        LL  weight;
+    };
+
+    vector<UIN>                nodes_;
+    vector<unordered_set<UIN>> adj_;
+    vector<Edge>               edges_;
+
+   public:
+    Graph(UIN size) {
+        nodes_ = vector<UIN>(size, 0);
+        adj_   = vector<unordered_set<UIN>>(size);
+    }
+
+    void add_edge(UIN u, UIN v, LL w = 0) {
+        adj_[u].insert(v);
+        adj_[v].insert(u);
+        edges_.push_back({u, v, w});
+    }
+
+    bool shortest_path_unweighted(UIN dest, UIN src, vector<LL>& dist) {
+        auto visited = vector<bool>(size(), false);
+
+        visited[src] = true;
+        dist[src]    = 0;
+        queue<UIN> queue;
+        queue.push(src);
+
+        while (!queue.empty()) {
+            UIN u = queue.front();
+            queue.pop();
+
+            for (auto const v : adj_[u]) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    dist[v]    = dist[u] + 1;
+                    queue.push(v);
+
+                    if (v == dest) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // Returns true if the graph has negative cycle(s), false otherwise.
+    // The function is idempotent.
+    bool has_negative_cycle() const {
+        const LL NULL_NODE = -1;
+
+        vector<LL> dists(size(), LLONG_MAX);
+        vector<LL> predecessors(size(), NULL_NODE);
+
+        size_t src = 0;
+        dists[src] = 0;
+
+        // Performs Bellman-Ford relaxation.
+        for (size_t repeat_cnt = 0; repeat_cnt < size(); repeat_cnt++) {
+            for (auto const& edge : edges_) {
+                if (dists[edge.u] + edge.weight < dists[edge.v]) {
+                    dists[edge.v]        = dists[edge.u] + edge.weight;
+                    predecessors[edge.v] = edge.u;
+                }
+            }
+        }
+
+        // Check if negative cycles exist
+        for (auto const& edge : edges_) {
+            if (dists[edge.u] + edge.weight < dists[edge.v]) {
+                return true;  // found negative cycle
+            }
+        }
+
+        return false;
+    }
+
+    // Returns the number of nodes within this graph.
+    size_t size() const { return nodes_.size(); }
+};
 
 struct Coor {
     int x;
@@ -66,83 +155,66 @@ Input read_in() {
 using EscapeTimes = vector<vector<vector<int>>>;
 using VisitMap    = vector<vector<vector<bool>>>;
 
-int escape(const Coor loc, const Maze& maze, EscapeTimes& escape_times,
-           VisitMap& visited) {
-    // out of bounds
-    if ((loc.x >= maze.size() || loc.x < 0) ||
-        (loc.y >= maze[0].size() || loc.y < 0) ||
-        (loc.z >= maze[0][0].size() || loc.z < 0)) {
-        return NO_PATH;
-    }
-
-    // cout << loc.x << " " << loc.y << " " << loc.z << endl;
-
-    // already memoized
-    if (escape_times[loc.x][loc.y][loc.z] != -1) {
-        return escape_times[loc.x][loc.y][loc.z];
-    }
-    // return to prevent infinite cycle
-    else if (visited[loc.x][loc.y][loc.z]) {
-        return NO_PATH;
-    }
-
-    auto curr_maze_val = maze[loc.x][loc.y][loc.z];
-
-    switch (curr_maze_val) {
-        case 'E':
-            return 0;
-        case '#':
-            return NO_PATH;
-        default:
-            visited[loc.x][loc.y][loc.z] = true;
-
-            auto candidates = {
-                // move up
-                escape({loc.x + 1, loc.y, loc.z}, maze, escape_times, visited),
-                // move left
-                escape({loc.x, loc.y, loc.z - 1}, maze, escape_times, visited),
-                // move right
-                escape({loc.x, loc.y, loc.z + 1}, maze, escape_times, visited),
-                // move south
-                escape({loc.x, loc.y + 1, loc.z}, maze, escape_times, visited),
-                // move north
-                escape({loc.x, loc.y - 1, loc.z}, maze, escape_times, visited),
-                // move down
-                escape({loc.x - 1, loc.y, loc.z}, maze, escape_times, visited)};
-
-            auto res = *min_element(candidates.begin(), candidates.end()) + 1;
-
-            // cout << "escape time at " << loc.x << " " << loc.y << " " <<
-            // loc.z
-            //      << " is " << res << endl;
-
-            escape_times[loc.x][loc.y][loc.z] = res;
-            visited[loc.x][loc.y][loc.z]      = false;
-
-            return res;
-    }
-}
-
 int plan_escape(Input& in) {
-    auto escape_times = vector<vector<vector<int>>>(
-        in.maze.size(),
-        vector<vector<int>>(in.maze[0].size(),
-                            vector<int>(in.maze[0][0].size(), -1)));
+    UIN   K = in.maze.size(), M = in.maze[0].size(), N = in.maze[0][0].size();
+    auto  graph_sz = K * M * N;
+    Graph g(graph_sz);
 
-    auto visit_map = vector<vector<vector<bool>>>(
-        in.maze.size(),
-        vector<vector<bool>>(in.maze[0].size(),
-                             vector<bool>(in.maze[0][0].size(), false)));
+    auto to_node_id = [K, M, N](Coor coor) {
+        return N * M * coor.x + N * coor.y + coor.z;
+    };
 
-    return escape(in.start, in.maze, escape_times, visit_map);
-}
+    auto is_rock = [&in](int i, int j, int k) {
+        return in.maze[i][j][k] == '#';
+    };
 
-void fmtout(int out) {
-    if (out >= NO_PATH) {
+    for (int i = 0; i < K; i++) {
+        for (int j = 0; j < M; j++) {
+            for (int k = 0; k < N; k++) {
+                if (is_rock(i, j, k)) {
+                    continue;
+                }
+
+                auto self_id = to_node_id({i, j, k});
+                if (k > 0 && !is_rock(i, j, k - 1)) {
+                    g.add_edge(self_id, to_node_id({i, j, k - 1}), 1);
+                }
+                if (k < (N - 1) && !is_rock(i, j, k + 1)) {
+                    g.add_edge(self_id, to_node_id({i, j, k + 1}), 1);
+                }
+
+                if (j > 0 && !is_rock(i, j - 1, k)) {
+                    g.add_edge(self_id, to_node_id({i, j - 1, k}), 1);
+                }
+
+                if (j < (M - 1) && !is_rock(i, j + 1, k)) {
+                    g.add_edge(self_id, to_node_id({i, j + 1, k}), 1);
+                }
+
+                if (i > 0 && !is_rock(i - 1, j, k)) {
+                    g.add_edge(self_id, to_node_id({i - 1, j, k}), 1);
+                }
+
+                if (i < (K - 1) && !is_rock(i + 1, j, k)) {
+                    g.add_edge(self_id, to_node_id({i + 1, j, k}), 1);
+                }
+            }
+        }
+    }
+
+    vector<LL> dist = vector<LL>(graph_sz, LLONG_MAX);
+
+    bool reachable = g.shortest_path_unweighted(to_node_id(in.end),
+                                                to_node_id(in.start), dist);
+
+    if (!reachable) {
         cout << "Trapped!" << endl;
     } else {
-        cout << "Escaped in " << out << " minute(s)." << endl;
+        cout << "Escaped in " << dist[to_node_id(in.end)] << " minute(s)."
+             << endl;
     }
+
+    return 0;
 }
 
 int main() {
@@ -151,5 +223,4 @@ int main() {
 
     auto in  = read_in();
     auto out = plan_escape(in);
-    fmtout(out);
 }
