@@ -37,14 +37,14 @@ int main() {
     cin.tie(NULL);
 
     // READ INPUT
+    string line;
+    getline(cin, line);
+    auto dot_pos = line.find_first_of('.');
 
     // target sum: 0.00 < target <= 300.00
-    float target;
-    cin >> target;
-
-    int target_cents = target * 100;
+    int target_cents =
+        100 * stoi(line.substr(0, dot_pos)) + stoi(line.substr(dot_pos + 1));
 
     auto ways = count_ways_to_change(target_cents);
-    cout << right << setw(6) << fixed << setprecision(2) << target << right
-         << setw(17) << ways << endl;
+    cout << right << setw(6) << line << right << setw(17) << ways << endl;
 }
