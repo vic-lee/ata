@@ -6,3 +6,4 @@ t.out
 tmp
 main
 *.dSYM
+*.gch
