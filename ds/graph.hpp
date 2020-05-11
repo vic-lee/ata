@@ -49,7 +49,7 @@ class Graph {
      *      size, initialized to all `false`. On return, all vertices reachable
      *      from `src` will be marked as `true`.
      */
-    void dfs(UIN src, vector<bool>& visited);
+    void dfs(UIN src, vector<bool>& visited) const;
 
     /// The number of vertices of this Graph.
     size_t size() const { return nodes_.size(); }

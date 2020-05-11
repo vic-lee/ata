@@ -47,7 +47,7 @@ bool Graph::has_negative_cycle() const {
     return false;
 }
 
-void Graph::dfs(UIN src, vector<bool>& visited) {
+void Graph::dfs(UIN src, vector<bool>& visited) const {
     visited[src] = true;
     for (auto const& next_candidate : adj_[src]) {
         if (!visited[next_candidate]) {
