@@ -1,6 +1,9 @@
 #include "graph.hpp"
 
-#include <unordered_set>
+#include <climits>
+#include <iostream>
+#include <set>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -9,14 +12,17 @@ using LL  = long long;
 
 namespace ds {
 
+const LL  Graph::DIST_INFTY      = UINT_MAX;
+const UIN Graph::VERTEX_ID_UNDEF = UINT_MAX;
+
 Graph::Graph(UIN size) {
     nodes_ = vector<UIN>(size, 0);
-    adj_   = vector<unordered_set<UIN>>(size);
+    adj_   = vector<vector<Neighbor>>(size);
 }
 
 void Graph::add_edge(UIN u, UIN v, LL w) {
-    adj_[u].insert(v);
-    adj_[v].insert(u);
+    adj_[u].push_back({v, w});
+    adj_[v].push_back({u, w});
     edges_.push_back({u, v, w});
 
     if (w < 0) {
@@ -55,11 +61,52 @@ bool Graph::has_negative_cycle() const {
 
 void Graph::find_all_reachables(UIN src, vector<bool>& visited) const {
     visited[src] = true;
-    for (auto const& next_candidate : adj_[src]) {
+    for (auto const& edge : adj_[src]) {
+        auto next_candidate = edge.id;
         if (!visited[next_candidate]) {
             find_all_reachables(next_candidate, visited);
         }
     }
 }
 
-};
+Graph::SSSPOutput::SSSPOutput(size_t sz)
+    : dist(vector<LL>(sz, Graph::DIST_INFTY)),
+      pred(vector<UIN>(sz, Graph::VERTEX_ID_UNDEF)) {}
+
+Graph::SSSPOutput Graph::sssp(UIN src, SSSPConfig config) {
+    Graph::SSSPOutput out(size());
+
+    // { vertex_id, distance_to_src }
+    using QueueEntry = pair<UIN, LL>;
+
+    if (!has_negative_edge_) {
+        using MinQueue = set<QueueEntry>;
+
+        MinQueue minqueue;
+
+        out.dist[src] = 0;
+        minqueue.emplace(src, out.dist[src]);
+
+        while (!minqueue.empty()) {
+            auto min_dist_entry = *minqueue.begin();
+            minqueue.erase(minqueue.begin());
+            auto u = min_dist_entry.first;
+
+            for (auto const& edge : adj_[u]) {
+                auto v   = edge.id;
+                LL   alt = out.dist[u] + edge.edge_weight;
+
+                if (alt < out.dist[v]) {
+                    minqueue.erase(make_pair(v, out.dist[v]));
+                    out.dist[v] = alt;
+                    out.pred[v] = u;
+                    minqueue.emplace(v, out.dist[v]);
+                }
+            }
+        }
+    }
+
+    return out;
+}
+
+};  // namespace ds

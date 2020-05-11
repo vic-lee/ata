@@ -16,15 +16,26 @@ class Graph {
         LL  weight;
     };
 
-    vector<UIN>                nodes_;
-    vector<unordered_set<UIN>> adj_;
-    vector<Edge>               edges_;
+    struct Neighbor {
+        UIN id;
+        LL  edge_weight;
+    };
+
+    vector<UIN>              nodes_;
+    vector<Edge>             edges_;
+    vector<vector<Neighbor>> adj_;
 
     /// `true` if any of the edges added has a negative weight.
     bool has_negative_edge_;
 
    public:
     Graph(UIN size);
+
+    /// Represents infinity in path distance optimization contexts.
+    static const LL DIST_INFTY;
+
+    /// Represents uninitialized vertex ID entry.
+    static const UIN VERTEX_ID_UNDEF;
 
     /**
      * Creates a new edge in the graph.
@@ -58,6 +69,39 @@ class Graph {
      *      from `src` will be marked as `true`.
      */
     void find_all_reachables(UIN src, vector<bool>& visited) const;
+
+    struct SSSPOutput {
+        /// Initialize by providing the size of the Graph.
+        SSSPOutput(size_t sz);
+
+        vector<LL>  dist;
+        vector<UIN> pred;
+    };
+
+    struct SSSPConfig {
+        SSSPConfig() : track_predecessors(true) {}
+
+        /**
+         * Whether to keep track of the actual shortest path, in the form
+         * of a predecessor list. Defaults to `true`.
+         */
+        bool track_predecessors;
+    };
+
+    /**
+     * Performs single source shortest path calculations on the Graph.
+     *
+     * @note
+     * Uses Bellman-Ford if the Graph contains any negative edge(s),
+     * or Dijkstra otherwise.
+     *
+     * @param src the starting vertex for finding the shortest paths.
+     * @param config optionally configure the function's behavior. Refer to
+     *      SSSPConfig for available options and default values.
+     *
+     * @return an SSSPOutput struct. @see SSSPOutput.
+     */
+    SSSPOutput sssp(UIN src, SSSPConfig config = SSSPConfig());
 
     /// The number of vertices of this Graph.
     size_t size() const { return nodes_.size(); }
