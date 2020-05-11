@@ -7,6 +7,8 @@ using namespace std;
 using UIN = unsigned int;
 using LL  = long long;
 
+namespace ds {
+
 Graph::Graph(UIN size) {
     nodes_ = vector<UIN>(size, 0);
     adj_   = vector<unordered_set<UIN>>(size);
@@ -55,3 +57,5 @@ void Graph::dfs(UIN src, vector<bool>& visited) const {
         }
     }
 }
+
+};

@@ -7,6 +7,8 @@ using namespace std;
 using UIN = unsigned int;
 using LL  = long long;
 
+namespace ds {
+
 class Graph {
     struct Edge {
         UIN u;
@@ -57,3 +59,5 @@ class Graph {
     /// The number of edges of this graph.
     size_t num_edges() const { return edges_.size(); }
 };
+
+};  // namespace ds
