@@ -73,7 +73,7 @@ Graph::SSSPOutput::SSSPOutput(size_t sz)
     : dist(vector<LL>(sz, Graph::DIST_INFTY)),
       pred(vector<UIN>(sz, Graph::VERTEX_ID_UNDEF)) {}
 
-Graph::SSSPOutput Graph::sssp(UIN src, SSSPConfig config) {
+Graph::SSSPOutput Graph::sssp(UIN src, SSSPConfig config) const {
     if (!has_negative_edge_) {
         return sssp_dijkstra(src, config);
     } else {

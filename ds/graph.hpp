@@ -71,6 +71,7 @@ class Graph {
     };
 
     /**
+     * @idempotent
      * Performs single source shortest path calculations on the Graph.
      *
      * @note
@@ -83,7 +84,7 @@ class Graph {
      *
      * @return an SSSPOutput struct. @see SSSPOutput.
      */
-    SSSPOutput sssp(UIN src, SSSPConfig config = SSSPConfig());
+    SSSPOutput sssp(UIN src, SSSPConfig config = SSSPConfig()) const;
 
     /// The number of vertices of this Graph.
     size_t size() const { return nodes_.size(); }
