@@ -10,24 +10,6 @@ using LL  = long long;
 namespace ds {
 
 class Graph {
-    struct Edge {
-        UIN u;
-        UIN v;
-        LL  weight;
-    };
-
-    struct Neighbor {
-        UIN id;
-        LL  edge_weight;
-    };
-
-    vector<UIN>              nodes_;
-    vector<Edge>             edges_;
-    vector<vector<Neighbor>> adj_;
-
-    /// `true` if any of the edges added has a negative weight.
-    bool has_negative_edge_;
-
    public:
     Graph(UIN size);
 
@@ -108,6 +90,25 @@ class Graph {
 
     /// The number of edges of this graph.
     size_t num_edges() const { return edges_.size(); }
+
+   private:
+    struct Edge {
+        UIN u;
+        UIN v;
+        LL  weight;
+    };
+
+    struct Neighbor {
+        UIN id;
+        LL  edge_weight;
+    };
+
+    vector<UIN>              nodes_;
+    vector<Edge>             edges_;
+    vector<vector<Neighbor>> adj_;
+
+    /// `true` if any of the edges added has a negative weight.
+    bool has_negative_edge_;
 };
 
 };  // namespace ds
