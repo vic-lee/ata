@@ -44,14 +44,17 @@ class Graph {
 
     /**
      * @idempotent
-     * Performs DFS to determine all vertices reachable from `src`.
+     * Searches for all the vertices that are reachable from `src`.
+     *
+     * @note
+     * Performs DFS internally.
      *
      * @param src ID of the vertex from which the DFS begins.
      * @param visited output param. A boolean vector of at least the Graph's
      *      size, initialized to all `false`. On return, all vertices reachable
      *      from `src` will be marked as `true`.
      */
-    void dfs(UIN src, vector<bool>& visited) const;
+    void find_all_reachables(UIN src, vector<bool>& visited) const;
 
     /// The number of vertices of this Graph.
     size_t size() const { return nodes_.size(); }
