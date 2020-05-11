@@ -1,6 +1,7 @@
 #include <climits>
 #include <iostream>
 #include <sstream>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
@@ -24,19 +25,19 @@ class Graph {
         LL  weight;
     };
 
-    vector<UIN>         nodes_;
-    vector<vector<UIN>> adj_;
-    vector<Edge>        edges_;
+    vector<UIN>                nodes_;
+    vector<unordered_set<UIN>> adj_;
+    vector<Edge>               edges_;
 
    public:
     Graph(UIN size) {
         nodes_ = vector<UIN>(size, 0);
-        adj_   = vector<vector<UIN>>(size);
+        adj_   = vector<unordered_set<UIN>>(size);
     }
 
     void add_edge(UIN u, UIN v, LL w = 0) {
-        adj_[u].push_back(v);
-        adj_[v].push_back(u);
+        adj_[u].insert(v);
+        adj_[v].insert(u);
         edges_.push_back({u, v, w});
     }
 
@@ -74,8 +75,7 @@ class Graph {
     /** Mark all nodes reachable from `src` as visited */
     void dfs(UIN src, vector<bool>& visited) {
         visited[src] = true;
-        for (size_t i = 0; i < adj_[src].size(); i++) {
-            UIN next_candidate = adj_[src][i];
+        for (auto const& next_candidate : adj_[src]) {
             if (!visited[next_candidate]) {
                 dfs(next_candidate, visited);
             }
