@@ -18,6 +18,10 @@ void Graph::add_edge(UIN u, UIN v, LL w) {
     adj_[u].insert(v);
     adj_[v].insert(u);
     edges_.push_back({u, v, w});
+
+    if (w < 0) {
+        has_negative_edge_ = true;
+    }
 }
 
 bool Graph::has_negative_cycle() const {

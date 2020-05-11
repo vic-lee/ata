@@ -20,6 +20,9 @@ class Graph {
     vector<unordered_set<UIN>> adj_;
     vector<Edge>               edges_;
 
+    /// `true` if any of the edges added has a negative weight.
+    bool has_negative_edge_;
+
    public:
     Graph(UIN size);
 
