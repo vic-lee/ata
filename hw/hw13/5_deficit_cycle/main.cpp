@@ -30,61 +30,96 @@ class Graph {
     vector<Edge>               edges_;
 
    public:
-    Graph(UIN size) {
-        nodes_ = vector<UIN>(size, 0);
-        adj_   = vector<unordered_set<UIN>>(size);
-    }
+    Graph(UIN size);
 
-    void add_edge(UIN u, UIN v, LL w = 0) {
-        adj_[u].insert(v);
-        adj_[v].insert(u);
-        edges_.push_back({u, v, w});
-    }
+    /**
+     * Creates a new edge in the graph.
+     *
+     * @param u the ID of one of the two vertices this edge is connecting
+     * @param v the other ID of one of the two vertices this edge is
+     connecting
+     * @param w optionally specify the weight of this edge. Negative edge
+     weight
+     *      allowed. If not specified, edge weight defaults to `0`.
+     */
+    void add_edge(UIN u, UIN v, LL w = 0);
 
-    // Returns true if the graph has negative cycle(s), false otherwise.
-    // The function is idempotent.
-    bool has_negative_cycle() const {
-        const LL NULL_NODE = -1;
+    /**
+     * @idempotent
+     * Determines of a graph as negative cycle(s).
+     *
+     * @return `true` if the graph has one or more negative cycles, otherwise
+     *      `false`.
+     */
+    bool has_negative_cycle() const;
 
-        vector<LL> dists(size(), LLONG_MAX);
-        vector<LL> predecessors(size(), NULL_NODE);
+    /**
+     * @idempotent
+     * Performs DFS to determine all vertices reachable from `src`.
+     *
+     * @param src ID of the vertex from which the DFS begins.
+     * @param visited output param. A boolean vector of at least the Graph's
+     *      size, initialized to all `false`. On return, all vertices
+     reachable
+     *      from `src` will be marked as `true`.
+     */
+    void dfs(UIN src, vector<bool>& visited);
 
-        size_t src = 0;
-        dists[src] = 0;
+    /// The number of vertices of this Graph.
+    size_t size() const { return nodes_.size(); }
 
-        // Performs Bellman-Ford relaxation.
-        for (size_t repeat_cnt = 0; repeat_cnt < size(); repeat_cnt++) {
-            for (auto const& edge : edges_) {
-                if (dists[edge.u] + edge.weight < dists[edge.v]) {
-                    dists[edge.v]        = dists[edge.u] + edge.weight;
-                    predecessors[edge.v] = edge.u;
-                }
-            }
-        }
+    /// The number of edges of this graph.
+    size_t num_edges() const { return edges_.size(); }
+};
 
-        // Check if negative cycles exist
+Graph::Graph(UIN size) {
+    nodes_ = vector<UIN>(size, 0);
+    adj_   = vector<unordered_set<UIN>>(size);
+}
+
+void Graph::add_edge(UIN u, UIN v, LL w) {
+    adj_[u].insert(v);
+    adj_[v].insert(u);
+    edges_.push_back({u, v, w});
+}
+
+bool Graph::has_negative_cycle() const {
+    const LL NULL_NODE = -1;
+
+    vector<LL> dists(size(), LLONG_MAX);
+    vector<LL> predecessors(size(), NULL_NODE);
+
+    size_t src = 0;
+    dists[src] = 0;
+
+    // Performs Bellman-Ford relaxation.
+    for (size_t repeat_cnt = 0; repeat_cnt < size(); repeat_cnt++) {
         for (auto const& edge : edges_) {
             if (dists[edge.u] + edge.weight < dists[edge.v]) {
-                return true;  // found negative cycle
-            }
-        }
-
-        return false;
-    }
-
-    /** Mark all nodes reachable from `src` as visited */
-    void dfs(UIN src, vector<bool>& visited) {
-        visited[src] = true;
-        for (auto const& next_candidate : adj_[src]) {
-            if (!visited[next_candidate]) {
-                dfs(next_candidate, visited);
+                dists[edge.v]        = dists[edge.u] + edge.weight;
+                predecessors[edge.v] = edge.u;
             }
         }
     }
 
-    // Returns the number of nodes within this graph.
-    size_t size() const { return nodes_.size(); }
-};
+    // Check if negative cycles exist
+    for (auto const& edge : edges_) {
+        if (dists[edge.u] + edge.weight < dists[edge.v]) {
+            return true;  // found negative cycle
+        }
+    }
+
+    return false;
+}
+
+void Graph::dfs(UIN src, vector<bool>& visited) {
+    visited[src] = true;
+    for (auto const& next_candidate : adj_[src]) {
+        if (!visited[next_candidate]) {
+            dfs(next_candidate, visited);
+        }
+    }
+}
 
 Graph read_in() {
     UIN num_cities, num_highways, u, v;
