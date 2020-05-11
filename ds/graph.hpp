@@ -109,6 +109,16 @@ class Graph {
 
     /// `true` if any of the edges added has a negative weight.
     bool has_negative_edge_;
+
+    /**
+     * @idempotent
+     * @internal
+     * Implementation of the Dijkstra SSSP algorithm.
+     *
+     * Used only for graphs w/ no negative edges.
+     * See `sssp` for argument and return type documentation.
+     */
+    SSSPOutput sssp_dijkstra(UIN src, const SSSPConfig& config) const;
 };
 
 };  // namespace ds
