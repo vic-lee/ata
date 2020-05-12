@@ -21,9 +21,9 @@ Graph::Graph(UIN size) {
 }
 
 void Graph::add_edge(UIN u, UIN v, LL w) {
-    adj_[u].push_back({v, w});
-    adj_[v].push_back({u, w});
-    edges_.push_back({u, v, w});
+    adj_[u].emplace_back(v, w);
+    adj_[v].emplace_back(u, w);
+    edges_.emplace_back(u, v, w);
 
     if (w < 0) {
         has_negative_edge_ = true;
@@ -108,6 +108,9 @@ Graph::SSSPOutput Graph::sssp_dijkstra(UIN               src,
         // Invariant: we know the distance from src to u is already minimal.
         auto u = min_dist_entry.second;
 
+        // cout << "popping " << u << "; dist: " << min_dist_entry.first <<
+        // endl;
+
         // "relax" (shorten) the distance from src to each of `u`'s neighbor
         // by checking if path `src -> ... -> u -> v` is shorter than `v`'s
         // current shortest distance to src as stored in the dist table.
@@ -115,6 +118,8 @@ Graph::SSSPOutput Graph::sssp_dijkstra(UIN               src,
         for (auto const& edge : adj_[u]) {
             auto v   = edge.id;
             LL   alt = out.dist[u] + edge.edge_weight;
+
+            // cout << u << " adjacent to " << v << endl;
 
             if (alt < out.dist[v]) {
                 // if `src -> ... -> u -> v` is indeed shorter,
@@ -125,6 +130,12 @@ Graph::SSSPOutput Graph::sssp_dijkstra(UIN               src,
                 out.dist[v] = alt;
                 out.pred[v] = u;
                 minqueue.emplace(out.dist[v], v);
+
+                // for (auto const& entry : minqueue) {
+                //     cout << "<" << entry.first << " " << entry.second << ">"
+                //          << " ";
+                // }
+                // cout << endl;
             }
         }
     }

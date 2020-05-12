@@ -97,11 +97,15 @@ class Graph {
         UIN u;
         UIN v;
         LL  weight;
+
+        Edge(UIN u, UIN v, LL w) : u(u), v(v), weight(w) {}
     };
 
     struct Neighbor {
         UIN id;
         LL  edge_weight;
+
+        Neighbor(UIN id, LL w) : id(id), edge_weight(w) {}
     };
 
     vector<UIN>              nodes_;
