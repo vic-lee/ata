@@ -3,7 +3,6 @@
 #include <unordered_set>
 #include <vector>
 
-using namespace std;
 using UIN = unsigned int;
 using LL  = long long;
 
@@ -50,14 +49,14 @@ class Graph {
      *      size, initialized to all `false`. On return, all vertices reachable
      *      from `src` will be marked as `true`.
      */
-    void find_all_reachables(UIN src, vector<bool>& visited) const;
+    void find_all_reachables(UIN src, std::vector<bool>& visited) const;
 
     struct SSSPOutput {
         /// Initialize by providing the size of the Graph.
         SSSPOutput(size_t sz);
 
-        vector<LL>  dist;
-        vector<UIN> pred;
+        std::vector<LL>  dist;
+        std::vector<UIN> pred;
     };
 
     struct SSSPConfig {
@@ -108,9 +107,9 @@ class Graph {
         Neighbor(UIN id, LL w) : id(id), edge_weight(w) {}
     };
 
-    vector<UIN>              nodes_;
-    vector<Edge>             edges_;
-    vector<vector<Neighbor>> adj_;
+    std::vector<UIN>                   nodes_;
+    std::vector<Edge>                  edges_;
+    std::vector<std::vector<Neighbor>> adj_;
 
     /// `true` if any of the edges added has a negative weight.
     bool has_negative_edge_;

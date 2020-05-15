@@ -15,9 +15,8 @@ namespace ds {
 const LL  Graph::DIST_INFTY      = UINT_MAX;
 const UIN Graph::VERTEX_ID_UNDEF = UINT_MAX;
 
-Graph::Graph(UIN size) {
-    nodes_ = vector<UIN>(size, 0);
-    adj_   = vector<vector<Neighbor>>(size);
+    nodes_ = std::vector<UIN>(size, 0);
+    adj_   = std::vector<std::vector<Neighbor>>(size);
 }
 
 void Graph::add_edge(UIN u, UIN v, LL w) {
@@ -33,8 +32,8 @@ void Graph::add_edge(UIN u, UIN v, LL w) {
 bool Graph::has_negative_cycle() const {
     const LL NULL_NODE = -1;
 
-    vector<LL> dists(size(), LLONG_MAX);
-    vector<LL> predecessors(size(), NULL_NODE);
+    std::vector<LL> dists(size(), LLONG_MAX);
+    std::vector<LL> predecessors(size(), NULL_NODE);
 
     size_t src = 0;
     dists[src] = 0;
@@ -59,7 +58,7 @@ bool Graph::has_negative_cycle() const {
     return false;
 }
 
-void Graph::find_all_reachables(UIN src, vector<bool>& visited) const {
+void Graph::find_all_reachables(UIN src, std::vector<bool>& visited) const {
     visited[src] = true;
     for (auto const& edge : adj_[src]) {
         auto next_candidate = edge.id;
@@ -70,8 +69,8 @@ void Graph::find_all_reachables(UIN src, vector<bool>& visited) const {
 }
 
 Graph::SSSPOutput::SSSPOutput(size_t sz)
-    : dist(vector<LL>(sz, Graph::DIST_INFTY)),
-      pred(vector<UIN>(sz, Graph::VERTEX_ID_UNDEF)) {}
+    : dist(std::vector<LL>(sz, Graph::DIST_INFTY)),
+      pred(std::vector<UIN>(sz, Graph::VERTEX_ID_UNDEF)) {}
 
 Graph::SSSPOutput Graph::sssp(UIN src, SSSPConfig config) const {
     if (!has_negative_edge_) {
@@ -89,8 +88,8 @@ Graph::SSSPOutput Graph::sssp_dijkstra(UIN               src,
     // { distance_to_src, vertex_id }
     // Sorts ascendingly by the first element: the element that is closest
     // to the source should be at the front of the queue.
-    using QueueEntry = pair<LL, UIN>;
-    using MinQueue   = set<QueueEntry>;
+    using QueueEntry = std::pair<LL, UIN>;
+    using MinQueue   = std::set<QueueEntry>;
 
     MinQueue minqueue;
 
@@ -126,7 +125,7 @@ Graph::SSSPOutput Graph::sssp_dijkstra(UIN               src,
                 // update `v`'s entry in the queue so that its distance to
                 // src reflects the new, shortest distance.
 
-                minqueue.erase(make_pair(out.dist[v], v));
+                minqueue.erase(std::make_pair(out.dist[v], v));
                 out.dist[v] = alt;
                 out.pred[v] = u;
                 minqueue.emplace(out.dist[v], v);
