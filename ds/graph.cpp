@@ -6,6 +6,8 @@
 #include <utility>
 #include <vector>
 
+#define FOR_N(n) for (size_t i = 0; i < n; i++)
+
 using UIN = unsigned int;
 using LL  = long long;
 
@@ -39,27 +41,11 @@ void Graph::add_edge(UIN u, UIN v, LL w) {
 }
 
 bool Graph::has_negative_cycle() const {
-    const LL NULL_NODE = -1;
-
-    std::vector<LL> dists(size(), LLONG_MAX);
-    std::vector<LL> predecessors(size(), NULL_NODE);
-
-    size_t src = 0;
-    dists[src] = 0;
-
-    // Performs Bellman-Ford relaxation.
-    for (size_t repeat_cnt = 0; repeat_cnt < size(); repeat_cnt++) {
-        for (auto const& edge : edges_) {
-            if (dists[edge.u] + edge.weight < dists[edge.v]) {
-                dists[edge.v]        = dists[edge.u] + edge.weight;
-                predecessors[edge.v] = edge.u;
-            }
-        }
-    }
+    auto out = sssp_bellman_ford(0, SSSPConfig());
 
     // Check if negative cycles exist
     for (auto const& edge : edges_) {
-        if (dists[edge.u] + edge.weight < dists[edge.v]) {
+        if (out.dist[edge.u] + edge.weight < out.dist[edge.v]) {
             return true;  // found negative cycle
         }
     }
@@ -135,6 +121,24 @@ Graph::SSSPOutput Graph::sssp_dijkstra(UIN               src,
                 out.dist[v] = alt;
                 out.pred[v] = u;
                 minqueue.emplace(out.dist[v], v);
+            }
+        }
+    }
+
+    return out;
+}
+
+Graph::SSSPOutput Graph::sssp_bellman_ford(UIN               src,
+                                           const SSSPConfig& config) const {
+    auto out = Graph::SSSPOutput(this->size());
+
+    FOR_N(this->size()) {
+        for (auto const& edge : edges_) {
+            if (out.dist[edge.u] + edge.weight < out.dist[edge.v]) {
+                out.dist[edge.v] = out.dist[edge.u] + edge.weight;
+                if (config.track_predecessors) {
+                    out.pred[edge.v] = edge.u;
+                }
             }
         }
     }

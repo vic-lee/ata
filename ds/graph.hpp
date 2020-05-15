@@ -159,6 +159,16 @@ class Graph {
      * See `sssp` for argument and return type documentation.
      */
     SSSPOutput sssp_dijkstra(UIN src, const SSSPConfig& config) const;
+
+    /**
+     * @idempotent
+     * @internal
+     * Implements the Bellman Ford SSSP algorithm.
+     *
+     * Used only for graphs w/ negative edges. graphs with only non-negative
+     * edges, use Dijkstra for better asymptotic complexity.
+     */
+    SSSPOutput sssp_bellman_ford(UIN src, const SSSPConfig& config) const;
 };
 
 };  // namespace ds
