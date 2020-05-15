@@ -10,7 +10,23 @@ namespace ds {
 
 class Graph {
    public:
-    Graph(UIN size);
+    /// Configures properties of a Graph instance.
+    struct GraphConfig {
+        bool directed;
+        /**
+         * Specifies whether edges of this graph have weights.
+         * Should be `true` if any of the edges have a weight. The weight could
+         * be either positive or negative.
+         * Defaults to `false`, i.e. an unweighted graph, if not specified.
+         */
+        bool weighted;
+
+        GraphConfig() : directed(false), weighted(false) {}
+        GraphConfig(bool directed, bool weighted)
+            : directed(directed), weighted(weighted) {}
+    };
+
+    Graph(UIN size, GraphConfig config = GraphConfig());
 
     /// Represents infinity in path distance optimization contexts.
     static const LL DIST_INFTY;
@@ -21,10 +37,17 @@ class Graph {
     /**
      * Creates a new edge in the graph.
      *
-     * @param u the ID of one of the two vertices this edge is connecting
-     * @param v the other ID of one of the two vertices this edge is connecting
-     * @param w optionally specify the weight of this edge. Negative edge weight
-     *      allowed. If not specified, edge weight defaults to `0`.
+     * @note
+     * For an undirected graph, the order of the first and second argument
+     * does not matter (i.e. add_edge(1, 2) is equivalent to add_edge(2, 1)).
+     * The order of the `u` and `v` arguments matters for a directed graph.
+     *
+     * @param u the vertex ID of where the edge originates.
+     * @param v the vertex ID of where the edge ends.
+     * @param w optionally specify the weight of this edge. For this argument to
+     *      work, ensure the Graph is configured to be weighted when it is
+     *      initialized. Negative edge weight allowed. If the graph is weighted
+     *      and this argument is not specified, the edge weight defaults to `0`.
      */
     void add_edge(UIN u, UIN v, LL w = 0);
 
@@ -91,6 +114,18 @@ class Graph {
     /// The number of edges of this graph.
     size_t num_edges() const { return edges_.size(); }
 
+    /**
+     * Whether the graph is initialized to be a directed graph.
+     * Edge directionality is not mutable after graph initialization.
+     */
+    bool directed() const { return config_.directed; }
+
+    /**
+     * Whether the graph's edges are allowed to have weights.
+     * This is configured on graph initialization and is not modifiable.
+     */
+    bool weighted() const { return config_.weighted; }
+
    private:
     struct Edge {
         UIN u;
@@ -110,6 +145,7 @@ class Graph {
     std::vector<UIN>                   nodes_;
     std::vector<Edge>                  edges_;
     std::vector<std::vector<Neighbor>> adj_;
+    GraphConfig                        config_;
 
     /// `true` if any of the edges added has a negative weight.
     bool has_negative_edge_;

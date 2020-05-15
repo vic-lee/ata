@@ -43,14 +43,19 @@ struct ProcessedInput {
  */
 ProcessedInput read_in() {
     UIN num_vertices, num_edges, src_vertex;
-    cin >> num_vertices >> num_edges >> src_vertex;
+    std::cin >> num_vertices >> num_edges >> src_vertex;
 
-    ds::Graph g(num_vertices);
+    ds::Graph::GraphConfig config = {
+        false,  // not directed
+        true,   // weigthed
+    };
+
+    ds::Graph g(num_vertices, config);
 
     UIN u, v;
     LL  w;
     FOR_N(num_edges) {
-        cin >> u >> v >> w;
+        std::cin >> u >> v >> w;
         g.add_edge(u, v, w);
     }
 
@@ -62,17 +67,17 @@ void fmtout(const ds::Graph::SSSPOutput& out) {
         auto dist = out.dist[i];
 
         if (dist == ds::Graph::DIST_INFTY) {
-            cout << "INF";
+            std::cout << "INF";
         } else {
-            cout << dist;
+            std::cout << dist;
         }
 
         if (i != out.dist.size() - 1) {
-            cout << " ";
+            std::cout << " ";
         }
     }
 
-    cout << endl;
+    std::cout << std::endl;
 }
 
 int main() {

@@ -6,7 +6,6 @@
 #include <utility>
 #include <vector>
 
-using namespace std;
 using UIN = unsigned int;
 using LL  = long long;
 
@@ -15,16 +14,26 @@ namespace ds {
 const LL  Graph::DIST_INFTY      = UINT_MAX;
 const UIN Graph::VERTEX_ID_UNDEF = UINT_MAX;
 
-    nodes_ = std::vector<UIN>(size, 0);
-    adj_   = std::vector<std::vector<Neighbor>>(size);
+Graph::Graph(UIN size, GraphConfig config) : config_(config) {
+    nodes_             = std::vector<UIN>(size, 0);
+    adj_               = std::vector<std::vector<Neighbor>>(size);
+    has_negative_edge_ = false;
 }
 
 void Graph::add_edge(UIN u, UIN v, LL w) {
-    adj_[u].emplace_back(v, w);
-    adj_[v].emplace_back(u, w);
-    edges_.emplace_back(u, v, w);
+    const LL edge_weight = this->weighted() ? w : 0;
 
-    if (w < 0) {
+    if (this->directed()) {
+        adj_[u].emplace_back(v, edge_weight);
+        edges_.emplace_back(u, v, edge_weight);
+    } else {
+        adj_[u].emplace_back(v, edge_weight);
+        adj_[v].emplace_back(u, edge_weight);
+        edges_.emplace_back(u, v, edge_weight);
+        edges_.emplace_back(v, u, edge_weight);
+    }
+
+    if (edge_weight < 0) {
         has_negative_edge_ = true;
     }
 }
@@ -107,9 +116,6 @@ Graph::SSSPOutput Graph::sssp_dijkstra(UIN               src,
         // Invariant: we know the distance from src to u is already minimal.
         auto u = min_dist_entry.second;
 
-        // cout << "popping " << u << "; dist: " << min_dist_entry.first <<
-        // endl;
-
         // "relax" (shorten) the distance from src to each of `u`'s neighbor
         // by checking if path `src -> ... -> u -> v` is shorter than `v`'s
         // current shortest distance to src as stored in the dist table.
@@ -129,12 +135,6 @@ Graph::SSSPOutput Graph::sssp_dijkstra(UIN               src,
                 out.dist[v] = alt;
                 out.pred[v] = u;
                 minqueue.emplace(out.dist[v], v);
-
-                // for (auto const& entry : minqueue) {
-                //     cout << "<" << entry.first << " " << entry.second << ">"
-                //          << " ";
-                // }
-                // cout << endl;
             }
         }
     }
