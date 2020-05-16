@@ -5,7 +5,7 @@ run_test_in_dir() {
 
     echo "\ncompiling test for \`$dir\`..."
 
-    g++ -std=c++17 -I ../ "./$dir/main.cpp" ../graph.cpp -o "./$dir/main"
+    g++ -std=c++17 -I ../ -I ./ "./$dir/main.cpp" ../graph.cpp ./graph_reader.cpp -o "./$dir/main"
 
     echo "compiled"
 
