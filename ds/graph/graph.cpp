@@ -3,6 +3,7 @@
 #include <climits>
 #include <iomanip>
 #include <iostream>
+#include <queue>
 #include <set>
 #include <sstream>
 #include <utility>
@@ -53,6 +54,62 @@ bool Graph::has_negative_cycle() const {
     }
 
     return false;
+}
+
+bool Graph::is_bipartite() const {
+    // Algorithm:
+    // A graph is bipartite iff it is two-colorable.
+    // (Another theorem is that a graph is bipartite iff it does not contain
+    // cycles of odd-length (odd cycles), but that is more difficult to
+    // implement as an algorihtm.)
+    // Therefore, we attempt to 2-colorize the graph in a modified BFS.
+
+    LL const PARTITION_UNSET = -1;
+    bool     is_bipartite    = true;
+
+    auto partition = std::vector<int>(size(), PARTITION_UNSET);
+
+    std::queue<UIN> queue;
+
+    for (size_t start_vtx = 0; start_vtx < size(); start_vtx++) {
+        // attempt all vertices as starting points to ensure all vertices are
+        // visited, as the graph may not be connected.
+
+        if (partition[start_vtx] == PARTITION_UNSET) {
+            partition[start_vtx] = 0;
+            queue.push(start_vtx);
+            while (!queue.empty()) {
+                UIN u = queue.front();
+                queue.pop();
+
+                for (auto const& neighbor : adj_[u]) {
+                    UIN v = neighbor.id;
+                    if (partition[v] == PARTITION_UNSET) {
+                        // Assign to the neighbor the partition that is opposite
+                        // to the current vertex's.
+                        partition[v] = !partition[u];
+                        // std::cout << "<" << v << ", " << partition[v] << ">"
+                        //           << std::endl;
+                        // std::cout << "partition of " << v << " assigned to "
+                        //           << partition[v] << ", " << (!partition[u])
+                        //           << std::endl;
+                        queue.push(v);
+                    } else {  // if the neighbor has an assigned partition
+                        // Graph continues to be bipartite if it is currently
+                        // bipartite and current vertex's partition differs from
+                        // its neighbor's.
+                        is_bipartite &= partition[v] != partition[u];
+                        // std::cout << "bipartite? " << is_bipartite << " " <<
+                        // v
+                        //           << " " << partition[v] << " " << u << " "
+                        //           << partition[u] << std::endl;
+                    }
+                }
+            }
+        }
+    }
+
+    return is_bipartite;
 }
 
 void Graph::find_all_reachables(UIN src, std::vector<bool>& visited) const {

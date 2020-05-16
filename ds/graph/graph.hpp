@@ -62,6 +62,15 @@ class Graph {
     bool has_negative_cycle() const;
 
     /**
+     * Determines whether the Graph, with its current edges, can be divided
+     * into two disjoint sets U and V such that every edge goes from one set
+     * to the other.
+     *
+     * @return `true` if the graph is bipartite, else `false`.
+     */
+    bool is_bipartite() const;
+
+    /**
      * @idempotent
      * Searches for all the vertices that are reachable from `src`.
      *
