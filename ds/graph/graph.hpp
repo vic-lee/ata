@@ -240,8 +240,8 @@ class Graph {
      * @internal
      * Implements the Bellman Ford SSSP algorithm.
      *
-     * Used only for graphs w/ negative edges. graphs with only non-negative
-     * edges, use Dijkstra for better asymptotic complexity.
+     * Should only be used only for graphs w/ negative edges. For graphs with
+     * only non-negative edges, use Dijkstra for better asymptotic complexity.
      */
     SSSPOutput sssp_bellman_ford(UIN src, const SSSPConfig& config) const;
 
