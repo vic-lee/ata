@@ -73,8 +73,7 @@ Graph::SSSPOutput Graph::sssp(UIN src, SSSPConfig config) const {
     if (!has_negative_edge_) {
         return sssp_dijkstra(src, config);
     } else {
-        // Temporary. Will return Bellman Ford SSSP in the future.
-        return SSSPOutput(size());
+        return sssp_bellman_ford(src, config);
     }
 }
 
