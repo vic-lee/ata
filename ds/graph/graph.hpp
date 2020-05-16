@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream>
 #include <unordered_set>
 #include <vector>
 
@@ -140,6 +141,27 @@ class Graph {
      * Uses Floyd-Warshall algorithm to for APSP generation internally.
      */
     APSPOutput apsp() const;
+
+    /**
+     * Returns a string stream representing the graph's current edges
+     * in the form of adjacency lists.
+     *
+     * Sample outputs:
+     *  weighted graph `{ <vertex_id>, <weight> }`:
+     * ```
+     *      0
+     *      1   { 2, -1 } { 3, 2 }
+     *      2   { 0, 0 }
+     * ```
+     *
+     *  unweighted graph:
+     * ```
+     *      0
+     *      1   2 3
+     *      2   0
+     * ```
+     */
+    std::ostringstream adjacency_list_repr() const;
 
     /// The number of vertices of this Graph.
     size_t size() const { return nodes_.size(); }

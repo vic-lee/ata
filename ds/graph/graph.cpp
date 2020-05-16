@@ -3,6 +3,7 @@
 #include <climits>
 #include <iostream>
 #include <set>
+#include <sstream>
 #include <utility>
 #include <vector>
 
@@ -193,6 +194,37 @@ Graph::APSPOutput Graph::apsp() const {
         }
     }
     return out;
+}
+
+std::ostringstream Graph::adjacency_list_repr() const {
+    std::ostringstream oss;
+
+    for (size_t vertex = 0; vertex < adj_.size(); vertex++) {
+        oss << vertex;
+
+        if (adj_[vertex].size()) {
+            oss << "\t";
+        }
+
+        for (size_t neighbor = 0; neighbor < adj_[vertex].size(); neighbor++) {
+            auto const neighbor_id = adj_[vertex][neighbor].id;
+            auto const weight      = adj_[vertex][neighbor].edge_weight;
+
+            if (weighted()) {
+                oss << "{ " << neighbor_id << ", " << weight << " }";
+            } else {
+                oss << neighbor_id;
+            }
+
+            if (neighbor < adj_[vertex].size()) {
+                oss << " ";
+            }
+        }
+
+        oss << "\n";
+    }
+
+    return oss;
 }
 
 };  // namespace ds
