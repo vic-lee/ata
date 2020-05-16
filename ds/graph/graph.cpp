@@ -104,6 +104,15 @@ bool Graph::is_bipartite() const {
 }
 
 bool Graph::is_connected() const {
+    // Algorithm:
+    // A graph is only connected if one graph traversal can reach all the
+    // vertices in the graph. If certain vertices are only reachable by multiple
+    // graph traversals, then we have shown that there exists vertices that are
+    // not reachable from the starting vertex of the prior traversal.
+    //
+    // Here we opt for DFS as the  traversal method, but BFS also works. 
+    // A graph with 0 vertices is trivially connected.
+
     if (size() == 0) return true;
 
     std::vector<bool> visited(size(), false);
