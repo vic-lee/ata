@@ -121,7 +121,7 @@ class Graph {
          *
          * @usage
          * Given vertices `i` and `j`, `dist[i][j]` stores the shortest
-         * distance between these 2 vertices.
+         * distance from `i` to `j`.
          */
         std::vector<std::vector<LL>> dist;
 
