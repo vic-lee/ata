@@ -88,21 +88,12 @@ bool Graph::is_bipartite() const {
                         // Assign to the neighbor the partition that is opposite
                         // to the current vertex's.
                         partition[v] = !partition[u];
-                        // std::cout << "<" << v << ", " << partition[v] << ">"
-                        //           << std::endl;
-                        // std::cout << "partition of " << v << " assigned to "
-                        //           << partition[v] << ", " << (!partition[u])
-                        //           << std::endl;
                         queue.push(v);
                     } else {  // if the neighbor has an assigned partition
                         // Graph continues to be bipartite if it is currently
                         // bipartite and current vertex's partition differs from
                         // its neighbor's.
                         is_bipartite &= partition[v] != partition[u];
-                        // std::cout << "bipartite? " << is_bipartite << " " <<
-                        // v
-                        //           << " " << partition[v] << " " << u << " "
-                        //           << partition[u] << std::endl;
                     }
                 }
             }
