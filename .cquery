@@ -1,0 +1,6 @@
+%clang
+%cpp -std=gnu++17
+-pthread
+
+# Includes
+-I./ds
