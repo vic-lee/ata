@@ -108,6 +108,39 @@ class Graph {
      */
     SSSPOutput sssp(UIN src, SSSPConfig config = SSSPConfig()) const;
 
+    struct APSPOutput {
+        /**
+         * Initializes data to be returned by an APSP calculation.
+         * @param vertex_count number of vertices in the graph used for APSP.
+         */
+        APSPOutput(size_t vertex_count);
+
+        /**
+         * Stores the shortest distances between 2 vertices
+         *
+         * @usage
+         * Given vertices `i` and `j`, `dist[i][j]` stores the shortest
+         * distance between these 2 vertices.
+         */
+        std::vector<std::vector<LL>> dist;
+
+        /**
+         * Stores the next vertex for the shortest path between 2 vertices.
+         *
+         * @usage
+         * Given vertices `i` and `j`, `next[i][j]` stores the next vertex
+         * on the shortest path from `i` to `j`.
+         */
+        std::vector<std::vector<UIN>> next;
+    };
+
+    /**
+     * Performs shortest path generation for all pair-wise vertex combinations.
+     *
+     * Uses Floyd-Warshall algorithm to for APSP generation internally.
+     */
+    APSPOutput apsp() const;
+
     /// The number of vertices of this Graph.
     size_t size() const { return nodes_.size(); }
 

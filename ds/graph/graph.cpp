@@ -146,4 +146,53 @@ Graph::SSSPOutput Graph::sssp_bellman_ford(UIN               src,
     return out;
 }
 
+Graph::APSPOutput::APSPOutput(size_t vertex_count) {
+    dist = std::vector<std::vector<LL>>(
+        vertex_count, std::vector<LL>(vertex_count, Graph::DIST_INFTY));
+
+    next = std::vector<std::vector<UIN>>(
+        vertex_count, std::vector<UIN>(vertex_count, Graph::VERTEX_ID_UNDEF));
+}
+
+Graph::APSPOutput Graph::apsp() const {
+    APSPOutput out(this->size());
+
+    // initializes adjacent vertices' distance and next properties
+    for (auto const& edge : edges_) {
+        out.dist[edge.u][edge.v] = edge.weight;
+        out.next[edge.u][edge.v] = edge.v;
+    }
+
+    // initializes properties for paths where start and end is equal
+    for (size_t v = 0; v < size(); v++) {
+        out.dist[v][v] = 0;
+        out.next[v][v] = v;
+    }
+
+    // Performs Floyd-Warshall iteratively, gradually expanding the vertex
+    // consideration set. This can also be done recursively.
+    //
+    // Recurrence relation (`SP` stands for shortest path):
+    //  SP(i, j, k) = min(
+    //      SP(i, j, k-1),
+    //      SP(i, k, k-1) + SP(k, j, k-1)
+    //  )
+    // Expand k to |V| to arrive at the solution to the graph.
+
+    for (size_t alt_vertex = 0; alt_vertex < size(); alt_vertex++) {
+        for (size_t i = 0; i < size(); i++) {
+            for (size_t j = 0; j < size(); j++) {
+                // Considers both the path that goes through `alt_vertex`
+                // and the one that does not.
+                auto alt = out.dist[i][alt_vertex] + out.dist[alt_vertex][j];
+                if (out.dist[i][j] > alt) {
+                    out.dist[i][j] = alt;
+                    out.next[i][j] = out.next[i][alt_vertex];
+                }
+            }
+        }
+    }
+    return out;
+}
+
 };  // namespace ds
