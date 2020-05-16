@@ -163,6 +163,24 @@ class Graph {
      */
     std::ostringstream adjacency_list_repr() const;
 
+    /**
+     * Represents the graph's current edges in the form of an adjacency matrix.
+     * Matrix entries `1` indicates an edge, whereas `0` indicates no edge.
+     *
+     * For directed graphs, `1` in a cell represents an edge from vertex at the
+     * row entry to vertex at the col entry.
+     *
+     * For instance, directed graph with the following matrix has only two
+     * edges: <1, 2> and <0, 1>.
+     * ```
+     *     0   1   2
+     * 0   0   1   0
+     * 1   0   0   1
+     * 2   0   0   0
+     * ```
+     */
+    std::ostringstream adjacency_matrix_repr() const;
+
     /// The number of vertices of this Graph.
     size_t size() const { return nodes_.size(); }
 
@@ -197,6 +215,8 @@ class Graph {
         Neighbor(UIN id, LL w) : id(id), edge_weight(w) {}
     };
 
+    using AdjacencyMatrix = std::vector<std::vector<bool>>;
+
     std::vector<UIN>                   nodes_;
     std::vector<Edge>                  edges_;
     std::vector<std::vector<Neighbor>> adj_;
@@ -224,6 +244,11 @@ class Graph {
      * edges, use Dijkstra for better asymptotic complexity.
      */
     SSSPOutput sssp_bellman_ford(UIN src, const SSSPConfig& config) const;
+
+    /**
+     * Converts the internal adjacency list to an adjacency matrix.
+     */
+    AdjacencyMatrix adjacency_matrix() const;
 };
 
 };  // namespace ds

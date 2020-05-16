@@ -1,6 +1,7 @@
 #include "graph.hpp"
 
 #include <climits>
+#include <iomanip>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -225,6 +226,46 @@ std::ostringstream Graph::adjacency_list_repr() const {
     }
 
     return oss;
+}
+
+std::ostringstream Graph::adjacency_matrix_repr() const {
+    std::ostringstream oss;
+
+    auto       adj_matrix = adjacency_matrix();
+    auto const COL_WIDTH  = 4;
+
+    // render initial row, which is vertex IDs
+    oss << std::setw(COL_WIDTH * 2) << 0;
+    for (size_t vertex = 1; vertex < size(); vertex++) {
+        oss << std::setw(COL_WIDTH) << vertex;
+    }
+    oss << '\n';
+
+    // render adj matrix, w/ first colum being vertex IDs
+    for (size_t from_vtx = 0; from_vtx < adj_matrix.size(); from_vtx++) {
+        oss << std::setw(COL_WIDTH) << from_vtx;
+
+        for (size_t to_vertex = 0; to_vertex < adj_matrix[from_vtx].size();
+             to_vertex++) {
+            oss << std::setw(COL_WIDTH) << adj_matrix[from_vtx][to_vertex];
+        }
+
+        oss << '\n';
+    }
+
+    return oss;
+}
+
+Graph::AdjacencyMatrix Graph::adjacency_matrix() const {
+    auto adj_matrix = AdjacencyMatrix(size(), std::vector<bool>(size(), false));
+
+    for (size_t u = 0; u < adj_.size(); u++) {
+        for (auto const v : adj_[u]) {
+            adj_matrix[u][v.id] = true;
+        }
+    }
+
+    return adj_matrix;
 }
 
 };  // namespace ds
