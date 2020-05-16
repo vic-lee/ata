@@ -103,6 +103,28 @@ bool Graph::is_bipartite() const {
     return is_bipartite;
 }
 
+bool Graph::is_connected() const {
+    if (size() == 0) return true;
+
+    std::vector<bool> visited(size(), false);
+    UIN               visit_count = 0;
+
+    std::function<void(size_t)> dfs_connected = [&](size_t src) {
+        visited[src] = true;
+        visit_count++;
+        for (auto const& neighbor : this->adj_[src]) {
+            auto const candidate = neighbor.id;
+            if (!visited[candidate]) {
+                dfs_connected(candidate);
+            }
+        }
+    };
+
+    dfs_connected(0);
+
+    return visit_count == size();
+}
+
 void Graph::find_all_reachables(UIN src, std::vector<bool>& visited) const {
     visited[src] = true;
     for (auto const& edge : adj_[src]) {

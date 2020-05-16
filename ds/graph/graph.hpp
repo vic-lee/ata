@@ -70,6 +70,15 @@ class Graph {
      */
     bool is_bipartite() const;
 
+
+    /**
+     * Determines whether there exists a path from every vertex to every other
+     * vertices in the graph's current form.
+     *
+     * @return `true` if the graph is connected, else `false`.
+     */
+    bool is_connected() const;
+
     /**
      * @idempotent
      * Searches for all the vertices that are reachable from `src`.
