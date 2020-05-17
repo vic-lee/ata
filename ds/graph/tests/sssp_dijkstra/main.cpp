@@ -23,6 +23,7 @@ struct ProcessedInput {
  *
  * followed by `E` lines of `u v w`s where u v are the vertex IDs, and w the
  * weight of the edge.
+ * The graph is assumed to be undirected.
  *
  * Constraints:
  *
