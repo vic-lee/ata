@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <numeric>
@@ -26,90 +27,71 @@ std::vector<int> read_in() {
 
     FOR_N(block_count) cin >> blocks[i];
 
+    std::sort(blocks.begin(), blocks.end(), greater<int>());
+
     return blocks;
 }
 
-struct Blocks {
-    int block1;
-    int block2;
+struct Tower {
+    ULL sum;
+    ULL height;
+
+    Tower() {
+        sum    = 0;
+        height = 0;
+    }
+
+    void add(int x) {
+        sum += x;
+        height++;
+    }
 };
 
-Blocks construct_blocks(const vector<int>& blocks) {
-    int global_block_1 = 0, global_block_2 = 0;
-    ULL blocks_sum = accumulate(blocks.begin(), blocks.end(), 0);
+void construct_blocks(const vector<int>& rsorted_blocks) {
+    if (rsorted_blocks.size() == 1) {
+        std::cout << "0 " << rsorted_blocks[0] << std::endl;
+        return;
+    }
 
-    if (blocks.size() % 2 == 0) {
-        size_t block_sz = blocks.size() / 2;
-        if (block_sz % 2 == 0) {
-            global_block_1 =
-                accumulate(blocks.begin() + block_sz / 2,
-                           blocks.begin() + block_sz / 2 + block_sz, 0);
-            global_block_2 = blocks_sum - global_block_1;
-        } else {
-            ULL    local_block_1 = 0, local_block_2 = 0;
-            size_t start_idx = (block_sz - 1) / 2;
+    if (rsorted_blocks.size() == 2) {
+        std::cout << rsorted_blocks[1] << " " << rsorted_blocks[0] << std::endl;
+    }
 
-            local_block_1 =
-                accumulate(blocks.begin() + start_idx,
-                           blocks.begin() + start_idx + block_sz, 0);
-            local_block_2  = blocks_sum - local_block_1;
-            global_block_1 = local_block_1;
-            global_block_2 = local_block_2;
+    const ULL blocks_sum =
+        accumulate(rsorted_blocks.begin(), rsorted_blocks.end(), 0);
 
-            // phase 2
-            local_block_1 = local_block_1 + blocks[start_idx + block_sz] -
-                            blocks[start_idx];
-            local_block_2 = blocks_sum - local_block_1;
+    Tower t1, t2;
+    t1.add(rsorted_blocks[0]);
+    t2.add(rsorted_blocks[1]);
 
-            if (abs((int)(local_block_1 - local_block_2)) <
-                abs((int)(global_block_1 - global_block_2))) {
-                global_block_1 = local_block_1;
-                global_block_2 = local_block_2;
+    for (size_t i = 2; i < rsorted_blocks.size(); i++) {
+        auto curr_block = rsorted_blocks[i];
+        if (t1.height == t2.height) {
+            if (t1.sum < t2.sum) {
+                t1.add(curr_block);
+            } else {
+                t2.add(curr_block);
             }
-        }
-    } else {
-        size_t start_idx = (blocks.size() - 1) / 4;
-        size_t end_idx   = start_idx + (blocks.size() - 1) / 2;
-
-        int local_block_1 = 0, local_block_2 = 0;
-        local_block_1 =
-            accumulate(blocks.begin() + start_idx, blocks.begin() + end_idx, 0);
-        local_block_2 = blocks_sum - local_block_1;
-
-        global_block_1 = local_block_1;
-        global_block_2 = local_block_2;
-
-        // phase 2
-        local_block_1 = local_block_1 + blocks[end_idx] - blocks[start_idx];
-        local_block_2 = blocks_sum - local_block_1;
-
-        if (abs(local_block_1 - local_block_2) <
-            abs(global_block_1 - global_block_2)) {
-            global_block_1 = local_block_1;
-            global_block_2 = local_block_2;
-        }
-
-        // phase 3
-        local_block_1 += blocks[start_idx];
-        local_block_2 = blocks_sum - local_block_1;
-
-        if (abs(local_block_1 - local_block_2) <
-            abs(global_block_1 - global_block_2)) {
-            global_block_1 = local_block_1;
-            global_block_2 = local_block_2;
+        } else if (t1.height < t2.height) {
+            t1.add(curr_block);
+        } else {  // t1.height > t2.height
+            t2.add(curr_block);
         }
     }
 
-    if (global_block_1 > global_block_2) swap(global_block_1, global_block_2);
-    return {global_block_1, global_block_2};
+    if (t1.sum > t2.sum) {
+        Tower tmp = t1;
+        t1        = t2;
+        t2        = tmp;
+    }
+
+    std::cout << t1.sum << " " << t2.sum << std::endl;
 }
 
 int main() {
     std::ios::sync_with_stdio(false);
     cin.tie(NULL);
 
-    auto in  = read_in();
-    auto out = construct_blocks(in);
-
-    cout << out.block1 << " " << out.block2 << endl;
+    auto in = read_in();
+    construct_blocks(in);
 }
