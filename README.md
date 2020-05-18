@@ -60,3 +60,8 @@ the program. Test cases are numbered in ascending order. The `c` suffix in some
 tests' names indicates these are custom test cases created for additional 
 testing; these tests are not provided by the problem statement and have a higher 
 chance of containing errors.
+
+Certain directories have self-contained test scripts.
+Local test scripts always take precedence over `run.sh`. They are most likely 
+created because the implementation is somehow incompatible with the global test 
+script.
