@@ -36,7 +36,7 @@ MinQueue<UIN> read_in() {
 }
 
 ULL min_bagging_cost(MinQueue<UIN>& bags) {
-    ULL cost = 0;
+    ULL total_cost = 0;
 
     do {
         auto bag1 = bags.top();
@@ -44,11 +44,11 @@ ULL min_bagging_cost(MinQueue<UIN>& bags) {
         auto bag2 = bags.top();
         bags.pop();
         auto new_bag_cost = bag1 + bag2;
-        cost += new_bag_cost;
+        total_cost += new_bag_cost;
         bags.push(new_bag_cost);
     } while (bags.size() >= 2);
 
-    return cost;
+    return total_cost;
 }
 
 void fmtout() {}
