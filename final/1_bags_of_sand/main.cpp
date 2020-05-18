@@ -51,8 +51,6 @@ ULL min_bagging_cost(MinQueue<UIN>& bags) {
     return total_cost;
 }
 
-void fmtout() {}
-
 int main() {
     std::ios::sync_with_stdio(false);
     cin.tie(NULL);

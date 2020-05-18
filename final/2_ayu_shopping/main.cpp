@@ -81,8 +81,6 @@ LL shop_candies(Input& in) {
     return shop(in.budget, 0);
 }
 
-void fmtout() {}
-
 int main() {
     std::ios::sync_with_stdio(false);
     cin.tie(NULL);
