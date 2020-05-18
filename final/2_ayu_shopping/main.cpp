@@ -74,6 +74,8 @@ LL shop_candies(Input& in) {
                                   category + 1));
         }
 
+        memo[remaining_budget][category] = best;
+
         return best;
     };
 
