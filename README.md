@@ -35,7 +35,7 @@ not found, the script will fail. It is possible to override the name of the
 executable used, which is often useful for testing Java programs. Refer to
 the documentation in `run.sh` for more detail.
 
-A canonical `tests` folder for a problem is structured like so:
+`tests` folders are usually structued in the following format:
 
 ```
 hw/hw10/1_bus_tour/tests
@@ -57,6 +57,6 @@ hw/hw10/1_bus_tour/tests
 Each subfolder in `tests` represent a test case, where `input` is the input
 directed to the `stdin` for the program and `output` is the expected output from
 the program. Test cases are numbered in ascending order. The `c` suffix in some
-tests' names indicate it is a custom test case created for additional testing;
-these tests are not provided by the problem statement and have a higher chance
-of containing errors.
+tests' names indicates these are custom test cases created for additional 
+testing; these tests are not provided by the problem statement and have a higher 
+chance of containing errors.
