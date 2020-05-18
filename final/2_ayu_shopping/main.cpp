@@ -57,10 +57,34 @@ Input read_in() {
     return in;
 }
 
+/**
+ * Given a budget and prices from a number of categories (a 2-D product matrix),
+ * maximize budget usage while requiring purchase of one item per category.
+ *
+ * Reference:
+ *  https://cs.nyu.edu/~joannakl/aps_s20/slides/11-dynamic_programming_2.html#15
+ */
 LL shop_candies(Input& in) {
+    // Let `C` be the total number of categories.
+    // `memo[m][i]` stores the maximum amount that can be spent under a budget
+    // of `m`, using one item per category from categories [i ... C].
     auto memo = std::vector<std::vector<LL>>(
         in.budget + 1, std::vector<LL>(in.prices.size(), LLONG_MIN));
 
+    /**
+     * Return the maximum amount that can be spent within the limits of
+     * `remaining_budget`, using products from `category` to the final category.
+     *
+     * Recurrence relation:
+     *  ```
+     * shop( -*, * ) = -INF
+     * shop( m, C )  = M - m        // have purchased from all categories
+     * shop( m, i )  = MAX( shop( m - k, i + 1 ) for k in prices[i] )
+     *      // note: of all the choices available for category `i`, pick the
+     *      // one that would result in maximum budget usage down the road
+     *      // (remember: budget usage is exactly what `shop` would return)
+     * ```
+     */
     std::function<LL(int, int)> shop = [&](int remaining_budget, int category) {
         if (remaining_budget < 0) return LLONG_MIN;
         if (category == in.prices.size()) return in.budget - remaining_budget;
