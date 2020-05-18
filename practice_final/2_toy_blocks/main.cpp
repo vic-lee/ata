@@ -41,6 +41,7 @@ void construct_blocks(const vector<int>& blocks) {
         int block1 = blocks[0], block2 = blocks[1];
         if (block1 > block2) swap(block1, block2);
         std::cout << block1 << " " << block2 << std::endl;
+        return;
     }
 
     const ULL blocks_sum = accumulate(blocks.begin(), blocks.end(), 0);
