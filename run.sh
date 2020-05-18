@@ -30,7 +30,15 @@ if [[ ! -e "$1" ]]; then
     exit 1
 fi
 
-if [[ ! $2 -eq 0 ]]; then exec=$2; else exec="main"; fi
+if [[ ! $2 -eq 0 ]]; then
+    exec=$2
+else
+    exec="main"
+    if [[ ! -e $1/main ]]; then # attempt to compile if main.cpp is not compiled
+        echo "Compiling $1/main.cpp..."
+        g++ -std=c++17 $1/main.cpp -o $1/main
+    fi
+fi
 
 if [[ ! -e $1/$exec ]]; then
     echo "executable '$exec' does not exist in $1. Exiting..." 1>&2
