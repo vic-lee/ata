@@ -31,24 +31,9 @@ std::vector<int> read_in() {
     return blocks;
 }
 
-void construct_blocks(const vector<int>& blocks) {
-    if (blocks.size() == 1) {
-        std::cout << "0 " << blocks[0] << std::endl;
-        return;
-    }
-
-    if (blocks.size() == 2) {
-        int block1 = blocks[0], block2 = blocks[1];
-        if (block1 > block2) swap(block1, block2);
-        std::cout << block1 << " " << block2 << std::endl;
-        return;
-    }
-
-    const ULL blocks_sum = accumulate(blocks.begin(), blocks.end(), 0);
-
+int optimize(int target, int tower_sz, const vector<int>& blocks) {
     std::set<size_t> tower_elems;
-    int              target   = blocks_sum / 2;
-    int              tower_sz = blocks.size() / 2;
+
     int tower_sum = accumulate(blocks.begin(), blocks.begin() + tower_sz, 0);
 
     for (size_t i = 0; i < tower_sz; i++) {
@@ -60,6 +45,8 @@ void construct_blocks(const vector<int>& blocks) {
         int best_delta        = curr_delta;
         int block_candidate   = blocks[i];
         int removal_candidate = -1;
+
+        if (curr_delta == 0) break;
 
         for (auto const elem : tower_elems) {
             int this_delta =
@@ -80,7 +67,49 @@ void construct_blocks(const vector<int>& blocks) {
         }
     }
 
-    int block1 = tower_sum, block2 = blocks_sum - tower_sum;
+    return tower_sum;
+}
+
+void construct_blocks(const vector<int>& blocks) {
+    if (blocks.size() == 1) {
+        std::cout << "0 " << blocks[0] << std::endl;
+        return;
+    }
+
+    if (blocks.size() == 2) {
+        int block1 = blocks[0], block2 = blocks[1];
+        if (block1 > block2) swap(block1, block2);
+        std::cout << block1 << " " << block2 << std::endl;
+        return;
+    }
+
+    const ULL blocks_sum = accumulate(blocks.begin(), blocks.end(), 0);
+
+    int target   = blocks_sum / 2;
+    int tower_sz = blocks.size() / 2;
+    int block1, block2;
+
+    if (blocks.size() % 2 == 0) {
+        block1 = optimize(target, tower_sz, blocks);
+        block2 = blocks_sum - block1;
+    } else {
+        int block1_c1 = optimize(target, tower_sz, blocks);
+        int block2_c1 = blocks_sum - block1_c1;
+        int block1_c2 = optimize(target, tower_sz + 1, blocks);
+        int block2_c2 = blocks_sum - block1_c2;
+
+        int c1_delta = abs(block1_c1 - block2_c1);
+        int c2_delta = abs(block1_c2 - block2_c2);
+
+        if (c1_delta <= c2_delta) {
+            block1 = block1_c1;
+            block2 = block2_c1;
+        } else {
+            block1 = block1_c2;
+            block2 = block2_c2;
+        }
+    }
+
     if (block1 > block2) swap(block1, block2);
     std::cout << block1 << " " << block2 << std::endl;
 }
