@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <climits>
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <numeric>
 #include <set>
@@ -31,45 +33,6 @@ std::vector<int> read_in() {
     return blocks;
 }
 
-int optimize(int target, int tower_sz, const vector<int>& blocks) {
-    std::set<size_t> tower_elems;
-
-    int tower_sum = accumulate(blocks.begin(), blocks.begin() + tower_sz, 0);
-
-    for (size_t i = 0; i < tower_sz; i++) {
-        tower_elems.insert(i);
-    }
-
-    for (size_t i = tower_sz; i < blocks.size(); i++) {
-        int curr_delta        = abs(tower_sum - target);
-        int best_delta        = curr_delta;
-        int block_candidate   = blocks[i];
-        int removal_candidate = -1;
-
-        if (curr_delta == 0) break;
-
-        for (auto const elem : tower_elems) {
-            int this_delta =
-                abs(tower_sum - blocks[elem] + block_candidate - target);
-            if (this_delta < best_delta) {
-                removal_candidate = elem;
-                best_delta        = this_delta;
-            }
-        }
-
-        if (removal_candidate != -1) {
-            tower_elems.erase(removal_candidate);
-            tower_elems.insert(i);
-            tower_sum = 0;
-            for (auto const elem : tower_elems) {
-                tower_sum += blocks[elem];
-            }
-        }
-    }
-
-    return tower_sum;
-}
-
 void construct_blocks(const vector<int>& blocks) {
     if (blocks.size() == 1) {
         std::cout << "0 " << blocks[0] << std::endl;
@@ -83,32 +46,48 @@ void construct_blocks(const vector<int>& blocks) {
         return;
     }
 
-    const ULL blocks_sum = accumulate(blocks.begin(), blocks.end(), 0);
+    const int blocks_sum = accumulate(blocks.begin(), blocks.end(), 0);
 
-    int target   = blocks_sum / 2;
-    int tower_sz = blocks.size() / 2;
-    int block1, block2;
+    const int tower_sz_lowerlim = blocks.size() / 2;
+    const int tower_sz_upperlim = blocks.size() - tower_sz_lowerlim;
 
-    if (blocks.size() % 2 == 0) {
-        block1 = optimize(target, tower_sz, blocks);
-        block2 = blocks_sum - block1;
-    } else {
-        int block1_c1 = optimize(target, tower_sz, blocks);
-        int block2_c1 = blocks_sum - block1_c1;
-        int block1_c2 = optimize(target, tower_sz + 1, blocks);
-        int block2_c2 = blocks_sum - block1_c2;
+    // memoizes the minimum absolute difference between the two tower's
+    // sums, for each tower sum and each tower size (height).
+    vector<vector<int>> memo(blocks_sum + 1,
+                             vector<int>(blocks.size() + 1, -1));
 
-        int c1_delta = abs(block1_c1 - block2_c1);
-        int c2_delta = abs(block1_c2 - block2_c2);
+    std::function<int(size_t, int, int)> minimize_diff =
+        [&](size_t curr, int curr_tower_sum, int tower_sz) {
+            // cout << curr << " " << curr_tower_sum << " " << tower_sz << endl;
 
-        if (c1_delta <= c2_delta) {
-            block1 = block1_c1;
-            block2 = block2_c1;
-        } else {
-            block1 = block1_c2;
-            block2 = block2_c2;
-        }
-    }
+            if (curr > blocks.size() - 1) return INT_MAX;
+            if (curr == blocks.size() - 1) {
+                if (tower_sz >= tower_sz_lowerlim &&
+                    tower_sz <= tower_sz_upperlim) {
+                    return abs(blocks_sum - curr_tower_sum - curr_tower_sum);
+                }
+                return INT_MAX;
+            }
+            if (tower_sz > tower_sz_upperlim) return INT_MAX;
+
+            if (memo[curr_tower_sum][tower_sz] != -1) {
+                return memo[curr_tower_sum][tower_sz];
+            }
+
+            int res = min(minimize_diff(curr + 1, curr_tower_sum + blocks[curr],
+                                        tower_sz + 1),
+                          minimize_diff(curr + 1, curr_tower_sum, tower_sz));
+
+            memo[curr_tower_sum][tower_sz]                              = res;
+            memo[blocks_sum - curr_tower_sum][blocks.size() - tower_sz] = res;
+
+            return res;
+        };
+
+    int min_diff = minimize_diff(0, 0, 0);
+    // cout << min_diff << endl;
+    int block1 = (blocks_sum - min_diff) / 2;
+    int block2 = blocks_sum - block1;
 
     if (block1 > block2) swap(block1, block2);
     std::cout << block1 << " " << block2 << std::endl;
