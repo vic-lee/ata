@@ -61,8 +61,7 @@ LL shop_candies(Input& in) {
     auto memo = std::vector<std::vector<LL>>(
         in.budget + 1, std::vector<LL>(in.prices.size(), LLONG_MIN));
 
-    std::function<long long(int, int)> shop = [&](int remaining_budget,
-                                                  int category) {
+    std::function<LL(int, int)> shop = [&](int remaining_budget, int category) {
         if (remaining_budget < 0) return LLONG_MIN;
         if (category == in.prices.size()) return in.budget - remaining_budget;
 
