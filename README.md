@@ -19,6 +19,7 @@ the project root:
 ```shell
 $ ./run.sh hw/hw10/1_bus_tour
 Compiling hw/hw10/1_bus_tour/main.cpp...
+Compiled
 Using binary 'main' to run tests in hw/hw10/1_bus_tour/tests
 hw/hw10/1_bus_tour/tests/1      passed
 hw/hw10/1_bus_tour/tests/2      passed

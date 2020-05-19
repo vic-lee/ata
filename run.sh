@@ -36,7 +36,7 @@ else
     exec="main"
     if [[ ! -e $1/main ]]; then # attempt to compile if main.cpp is not compiled
         echo "Compiling $1/main.cpp..."
-        g++ -std=c++17 $1/main.cpp -o $1/main
+        g++ -std=c++17 $1/main.cpp -o $1/main && echo "Compiled" || echo "Failed to compile."
     fi
 fi
 
