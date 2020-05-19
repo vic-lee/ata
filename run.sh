@@ -48,10 +48,7 @@ fi
 echo "Using binary '$exec' to run tests in $1/tests"
 
 for d in $1/tests/*; do
-    $1/$exec <"$d/input" >$1/.tmp &&
-        diff $1/.tmp "$d/output" &&
+    diff <($1/$exec <"$d/input") "$d/output" &&
         echo -e "$d \\tpassed" ||
         echo -e "!!! $d \\tfailed !!!\n"
 done
-
-rm -f $1/.tmp
