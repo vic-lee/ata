@@ -36,7 +36,7 @@ else
     exec="main"
     if [[ ! -e $1/main ]]; then # attempt to compile if main.cpp is not compiled
         echo "Compiling $1/main.cpp..."
-        g++ -std=c++17 $1/main.cpp -o $1/main && echo "Compiled" || echo "Failed to compile."
+        g++ -std=c++17 "$1/main.cpp" -o "$1/main" && echo "Compiled" || echo "Failed to compile."
     fi
 fi
 
@@ -47,8 +47,8 @@ fi
 
 echo "Using binary '$exec' to run tests in $1/tests"
 
-for d in $1/tests/*; do
-    diff <($1/$exec <"$d/input") "$d/output" &&
+for d in "$1"/tests/*; do
+    diff <("$1"/$exec <"$d/input") "$d/output" &&
         echo -e "$d \\tpassed" ||
         echo -e "!!! $d \\tfailed !!!\n"
 done
