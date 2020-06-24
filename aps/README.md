@@ -12,22 +12,23 @@ solve problems for this class.
 ## Getting started
 
 Most problem folders contain test cases. Use `run.sh` to test the source file.
+You may find this script in the project root folder.
 
 For instance, to test problem #1 in homework 10, run the following command from 
 the project root:
 
 ```shell
-$ ./run.sh hw/hw10/1_bus_tour
+$ ./run.sh aps/hw/hw10/1_bus_tour
 Compiling hw/hw10/1_bus_tour/main.cpp...
 Compiled
 Using binary 'main' to run tests in hw/hw10/1_bus_tour/tests
-hw/hw10/1_bus_tour/tests/1      passed
-hw/hw10/1_bus_tour/tests/2      passed
-hw/hw10/1_bus_tour/tests/3c     passed
-hw/hw10/1_bus_tour/tests/4c     passed
-hw/hw10/1_bus_tour/tests/5c     passed
-hw/hw10/1_bus_tour/tests/6c     passed
-hw/hw10/1_bus_tour/tests/7c     passed
+aps/hw/hw10/1_bus_tour/tests/1      passed
+aps/hw/hw10/1_bus_tour/tests/2      passed
+aps/hw/hw10/1_bus_tour/tests/3c     passed
+aps/hw/hw10/1_bus_tour/tests/4c     passed
+aps/hw/hw10/1_bus_tour/tests/5c     passed
+aps/hw/hw10/1_bus_tour/tests/6c     passed
+aps/hw/hw10/1_bus_tour/tests/7c     passed
 ```
 
 The source file is assumed to use the name `main.cpp`, under the implementation
