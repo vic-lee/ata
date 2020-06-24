@@ -110,7 +110,7 @@ bool Graph::is_connected() const {
     // graph traversals, then we have shown that there exists vertices that are
     // not reachable from the starting vertex of the prior traversal.
     //
-    // Here we opt for DFS as the  traversal method, but BFS also works. 
+    // Here we opt for DFS as the traversal method, but BFS also works.
     // A graph with 0 vertices is trivially connected.
 
     if (size() == 0) return true;
@@ -132,6 +132,11 @@ bool Graph::is_connected() const {
     dfs_connected(0);
 
     return visit_count == size();
+}
+
+bool Graph::is_a_tree() const {
+    bool is_a_tree = false;
+    return is_a_tree;
 }
 
 void Graph::find_all_reachables(UIN src, std::vector<bool>& visited) const {

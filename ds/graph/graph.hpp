@@ -70,6 +70,12 @@ class Graph {
      */
     bool is_bipartite() const;
 
+    /**
+     * Determines if the graph is a tree, i.e. an acyclic undirected graph.
+     *
+     * @return `true` if the graph is a tree, else `false`.
+     */
+    bool is_a_tree() const;
 
     /**
      * Determines whether there exists a path from every vertex to every other
