@@ -11,6 +11,24 @@ directed / undirected. For instance, rather than thinking about which
 algorithm to use to find a graph's all-pairs shortest paths (APSP) output,
 a convenient `apsp()` method is provided.
 
+## Graph initialization and configuration
+
+Use `GraphConfig` to configure the weightedness and directionality of a graph
+instance.
+
+```cpp
+// for instance, to instantiate a directed, unweighted graph:
+
+unsigned int num_vertices = 100;
+
+bool is_directed = true;
+bool is_weighted = false;
+
+auto config = ds::Graph::GraphConfig(is_directed, is_weighted);
+
+auto g = ds::Graph(num_vertices, config);
+```
+
 ## Functionalities
 
 Below are a list of frequently invoked functionalities. For a list of all the
